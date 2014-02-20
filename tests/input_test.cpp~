@@ -1,0 +1,50 @@
+#include <fcntl.h>
+#include <stdio.h>
+#include <sys/mman.h>
+#include "lms2012.h"
+#include "unistd.h"
+
+#include <iostream>
+using namespace std;
+
+int main(){
+	int file;
+	UART *pUart;
+	int i;
+
+	file = open(UART_DEVICE_NAME, O_RDWR | O_SYNC);
+	if(file == -1){
+		cout << "Failed to open device" << endl;
+		return -1;
+	}
+
+	pUart = (UART*)mmap(0, sizeof(UART), PROT_READ | PROT_WRITE, MAP_FILE | MAP_SHARED, file, 0);
+	if(pUart == MAP_FAILED){
+		cout << "Failed to map device" << endl;
+		close(file);
+		return -1;
+	}
+
+	cout << "Opened Device" << endl;
+
+
+	while(true){
+		for(int i = 0; i < 4; i++){
+			cout << "SENSOR " << i << endl;
+			cout << "  Actual: " << (int)pUart->Actual[i] << endl;
+			cout << "  Login: " << (int)pUart->LogIn[i] << endl;
+			cout << "  Status: " << (int)pUart->Status[i] << endl;
+			cout << "  Length: " << (int)pUart->OutputLength[i] << endl;
+			for(c = 0; c < TYPE_NAME_LENGTH; c++){
+				cout << (char)pUart->TypeData[i][0].Name[c];	
+			}
+			cout << endl;
+			cout << "  Data: " << (int)pUart->Raw[i][pUart->Actual[i]][0] << endl;
+		}
+		sleep(1);
+	}
+
+	close(file);
+
+	return 0;
+}

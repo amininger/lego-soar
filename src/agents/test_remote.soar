@@ -1,0 +1,201 @@
+# init-agent - initializes the agent
+sp {topstate*propose*init-agent
+   (state <s> ^superstate nil
+             -^name)
+-->
+   (<s> ^operator <o> +)
+   (<o> ^name init-agent)
+}
+
+sp {topstate*apply*init-agent
+   (state <s> ^operator.name init-agent)
+-->
+   (<s> ^topstate <s>
+        ^name ev3-agent)
+}
+
+# Will apply the wait operator when there's nothing else to do
+sp {topstate*propose*wait
+   (state <s> ^superstate <ss>
+             -^operator.name wait)
+-->
+   (<s> ^operator <o> + < =)
+   (<o> ^name wait)
+}
+
+# Elaborates the remote sensor onto the topstate
+sp {topstate*elaborate*remote-sensor
+   (state <s> ^name ev3-agent
+              ^io.input-link.sensor <remote>)
+   (<remote> ^type ir-remote)
+-->
+   (<s> ^remote-sensor <remote>)
+}
+
+# Removes output-link commands when a status is put on them
+sp {topstate*remove*completed*actions*d1
+   (state <s> ^name ev3-agent
+              ^operator <op>
+              ^io.output-link <out>)
+   (<out> ^<att> <cmd>)
+   (<cmd> ^status <status>)
+-->
+   (<out> ^<att> <cmd> -)
+}
+
+# If there was an error, print it
+sp {topstate*print*command*error
+   (state <s> ^name ev3-agent
+              ^io.output-link.<name> <cmd>)
+   (<cmd> ^error <error>)
+-->
+   (write |Error on | <name> | = '| <error> |'| (crlf))
+}
+
+# if the remote is not in remote mode, changes the mode
+sp {topstate*propose*change-remote-mode
+   (state <s> ^name ev3-agent
+              ^remote-sensor <remote>)
+   (<remote> ^port <port>
+             ^mode <> remote)
+-->
+   (<s> ^operator <o> + >)
+   (<o> ^name change-remote-mode
+        ^port <port>)
+}
+
+sp {topstate*apply*change-remote-mode
+   (state <s> ^name ev3-agent
+              ^operator <o>
+              ^io.output-link <out>)
+   (<o> ^name change-remote-mode
+        ^port <port>)
+-->
+   (<out> ^sensor <sensor>)
+   (<sensor> ^port <port>
+             ^set.mode remote)
+}
+
+# When a button is pressed, this catches the event
+sp {topstate*propose*handle-button-press
+   (state <s> ^name ev3-agent
+              ^remote-sensor <remote>)
+   (<remote> ^mode remote
+             ^button <button>)
+   (<button> ^prev-state released
+             ^cur-state pressed)
+-->
+   (<s> ^operator <o> + =)
+   (<o> ^name handle-button-press
+        ^button <button>)
+}
+
+# Red-up button is pressed, go forward
+sp {topstate*apply*handle-button-press*red-up
+   (state <s> ^name ev3-agent
+              ^operator <o>
+              ^io.output-link <out>)
+   (<o> ^name handle-button-press
+        ^button.name red-up)
+-->
+   (<out> ^motor <left>
+          ^motor <right>)
+   (<left> ^port 2
+           ^start <left-start>)
+   (<left-start> ^direction forward
+                 ^power 40)
+   (<right> ^port 3
+            ^start <right-start>)
+   (<right-start> ^direction forward
+                  ^power 40)
+}
+
+# Red down button is pressed, go backward 
+sp {topstate*apply*handle-button-press*red-down
+   (state <s> ^name ev3-agent
+              ^operator <o>
+              ^io.output-link <out>)
+   (<o> ^name handle-button-press
+        ^button.name red-down)
+-->
+   (<out> ^motor <left>
+          ^motor <right>)
+   (<left> ^port 2
+           ^start <left-start>)
+   (<left-start> ^direction backward
+                 ^power 40)
+   (<right> ^port 3
+            ^start <right-start>)
+   (<right-start> ^direction backward
+                  ^power 40)
+}
+
+# blue-up button is pressed, turn left 
+sp {topstate*apply*handle-button-press*blue-up
+   (state <s> ^name ev3-agent
+              ^operator <o>
+              ^io.output-link <out>)
+   (<o> ^name handle-button-press
+        ^button.name blue-up)
+-->
+   (<out> ^motor <left>
+          ^motor <right>)
+   (<left> ^port 2
+           ^start <left-start>)
+   (<left-start> ^direction backward
+                 ^power 40)
+   (<right> ^port 3
+            ^start <right-start>)
+   (<right-start> ^direction forward
+                  ^power 40)
+}
+
+# Blue down button is pressed, turn right 
+sp {topstate*apply*handle-button-press*blue-down
+   (state <s> ^name ev3-agent
+              ^operator <o>
+              ^io.output-link <out>)
+   (<o> ^name handle-button-press
+        ^button.name blue-down)
+-->
+   (<out> ^motor <left>
+          ^motor <right>)
+   (<left> ^port 2
+           ^start <left-start>)
+   (<left-start> ^direction forward
+                 ^power 40)
+   (<right> ^port 3
+            ^start <right-start>)
+   (<right-start> ^direction backward
+                  ^power 40)
+}
+
+
+# Button is released, stop
+sp {topstate*propose*handle-button-release
+   (state <s> ^name ev3-agent
+              ^remote-sensor <remote>)
+   (<remote> ^button <button>)
+   (<button> ^prev-state pressed
+             ^cur-state released)
+-->
+   (<s> ^operator <o> + =)
+   (<o> ^name handle-button-release)
+}
+
+sp {topstate*apply*handle-button-release*stop
+   (state <s> ^name ev3-agent
+              ^operator <o>
+              ^io.output-link <out>)
+   (<o> ^name handle-button-release)
+-->
+   (<out> ^motor <left>
+          ^motor <right>)
+   (<left> ^port 2
+           ^stop <ls>)
+   (<right> ^port 3
+            ^stop <rs>)
+}
+   
+
+
