@@ -7,7 +7,6 @@ TOOLPREFIX=
 CC=$(TOOLPREFIX)g++
 
 FLAGS=-shared -fpic
-DEFINES=-DENABLE_SOAR
 
 INCLUDEPATH=-I$(EV3)/newsoarev3 -I$(EV3)/lcmlite -I$(EV3)/include -I$(SOAR_HOME)/include 
 LIBRARYPATH=-L$(SOAR_HOME) -L$(EV3)/lib/x86
@@ -23,5 +22,5 @@ $(PROGRAM): $(OBJECTS)
 	$(CC) $(FLAGS) -o $@ $(OBJECTS) $(INCLUDEPATH) $(LIBRARYPATH) $(LIBRARIES)
 
 %.o: %.cpp
-	$(CC) $(FLAGS) $(DEFINES) -o $@ -c $< $(INCLUDEPATH) $(LIBRARYPATH) $(LIBRARIES)
+	$(CC) $(FLAGS) -o $@ -c $< $(INCLUDEPATH) $(LIBRARYPATH) $(LIBRARIES)
 

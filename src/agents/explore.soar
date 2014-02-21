@@ -82,7 +82,7 @@ sp {explorer*apply*change-remote-mode
 # When a button is pressed, this catches the event
 sp {explorer*propose*handle-button-press
    (state <s> ^name explorer 
-							 ^io.input-link.brick.button <button>)
+							 ^io.input-link.brick.buttons.button <button>)
    (<button> ^prev-state released
              ^cur-state pressed)
 -->
