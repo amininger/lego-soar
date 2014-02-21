@@ -82,19 +82,23 @@ sp {explorer*apply*change-remote-mode
 # When a button is pressed, this catches the event
 sp {explorer*propose*handle-button-press
    (state <s> ^name explorer 
-							 ^io.input-link.brick.buttons.button <button>)
+							 ^io.input-link.brick.buttons.button <button>
+							 ^mode <cur-mode>)
    (<button> ^prev-state released
              ^cur-state pressed)
 -->
 	(<s> ^operator <o> + = >)
    (<o> ^name handle-button-press
-        ^button <button>)
+        ^button <button>
+				^mode <cur-mode>)
 }
 
 sp {explorer*apply*handle-button-press*toggle*mode*wait
 	(state <s> ^name explorer
-						 ^operator.handle-button-press
+						 ^operator <o>
 						 ^mode explore)
+	(<o> ^name handle-button-press
+	     ^mode explore)
 -->
 	(<s> ^mode explore -
 			 ^mode wait
@@ -103,8 +107,10 @@ sp {explorer*apply*handle-button-press*toggle*mode*wait
 
 sp {explorer*apply*handle-button-press*toggle*mode*explore
 	(state <s> ^name explorer
-						 ^operator.handle-button-press
+						 ^operator
 						 ^mode wait)
+	(<o> ^name handle-button-press
+	     ^mode wait)
 -->
 	(<s> ^mode wait -
 			 ^mode explore)
@@ -115,7 +121,7 @@ sp {explorer*propose*stop
 	(state <s> ^name explorer
 						 ^stop-agent true)
 -->
-	(<s> ^operator <o> +)
+	(<s> ^operator <o> + >)
 	(<o> ^name stop)
 }
 
