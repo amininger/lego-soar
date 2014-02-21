@@ -5,7 +5,7 @@ OBJECTS=$(SOURCES:.cpp=.o)
 TOOLPREFIX=arm-none-linux-gnueabi-
 CC=$(TOOLPREFIX)g++
 
-INCLUDEPATH=-I$(EV3)/newsoarev3 -I$(EV3)/lcmlite -I$(EV3)/include -I$(EV3)/CodeSource/arm-2009q1/arm-none-linux-gnueabi/include 
+INCLUDEPATH=-I$(EV3)/newsoarev3 -I$(EV3)/lcmlite -I$(EV3)/include -I$(SOAR_HOME)/include -I$(ARM_GCC)/arm-none-linux-gnueabi/include 
 
 all:: clean $(OBJECTS) $(PROGRAM)
 

@@ -15,7 +15,7 @@ int main(int argc, char** argv){
 	}
 
 	SoarLcmCommunicator comm;
-	SoarManager manager(&comm, argv[1], true);
+	SoarManager manager(&comm, argv[1], false);
 	comm.assignManager(&manager);
 	comm.start();
 
@@ -25,7 +25,7 @@ int main(int argc, char** argv){
 	cout << "C: " << i << endl;
 
 	while(true){
-		sleep(10);
+		manager.step();
 	}
 
 	return 0;

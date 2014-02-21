@@ -8,9 +8,13 @@ using namespace std;
 
 
 int main(int argc, char** argv){
+	if(argc < 2){
+		cout << "No soar file specified" << endl;
+		return 0;
+	}
 	DirectCommunicator comm;
 	Ev3Manager em;
-	SoarManager sm((SoarCommunicator*)&comm, "test-agent.soar", false);
+	SoarManager sm((SoarCommunicator*)&comm, argv[1], false);
 	comm.assignManagers(&sm, &em);
 	comm.start();
 

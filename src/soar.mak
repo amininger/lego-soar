@@ -1,7 +1,7 @@
-PROGRAM=soar_ev3
+PROGRAM=../bin/soar_ev3
 DOBJECTS=soar_ev3.cpp
 
-INCLUDEPATH=-I$(EV3)/lcmlite -I$(EV3)/include -I$(EV3)/newsoarev3 
+INCLUDEPATH=-I$(EV3)/lcmlite -I$(EV3)/include -I$(EV3)/newsoarev3 -I$(SOAR_HOME)/include
 LIBRARYPATH=-L$(EV3)/lib/x86
 LIBRARIES=-lsoarev3 -llcmlite -lrt -ldl -lpthread
 

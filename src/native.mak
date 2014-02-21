@@ -1,4 +1,4 @@
-PROGRAM=native_ev3
+PROGRAM=../bin/native_ev3
 DOBJECTS=native_ev3.cpp
 
 INCLUDEPATH=-I$(EV3)/lcmlite -I$(EV3)/include -I$(EV3)/newsoarev3 -I$(EV3)/CodeSource/arm-2009q1/arm-none-linux-gnueabi/include 

@@ -1,0 +1,246 @@
+# init-agent - initializes the agent
+sp {explorer*propose*init-agent
+   (state <s> ^superstate nil
+             -^name)
+-->
+   (<s> ^operator <o> +)
+   (<o> ^name init-agent)
+}
+
+sp {explorer*apply*init-agent
+   (state <s> ^operator.name init-agent)
+-->
+   (<s> ^explorer <s>
+        ^name explorer
+				^mode explore
+				^left-motor.port 1
+				^right-motor.port 2)
+}
+
+# Will apply the wait operator when there's nothing else to do
+sp {explorer*propose*wait
+   (state <s> ^superstate <ss>
+             -^operator.name wait)
+-->
+   (<s> ^operator <o> + < =)
+   (<o> ^name wait)
+}
+
+# Elaborates the remote sensor onto the explorer
+sp {explorer*elaborate*remote-sensor
+   (state <s> ^name explorer
+              ^io.input-link.sensor <remote>)
+   (<remote> ^type ir-remote)
+-->
+   (<s> ^remote-sensor <remote>)
+}
+
+# Removes output-link commands when a status is put on them
+sp {explorer*remove*completed*actions*d1
+   (state <s> ^name explorer
+              ^operator <op>
+              ^io.output-link <out>)
+   (<out> ^<att> <cmd>)
+   (<cmd> ^status <status>)
+-->
+   (<out> ^<att> <cmd> -)
+}
+
+# If there was an error, print it
+sp {explorer*print*command*error
+   (state <s> ^name explorer
+              ^io.output-link.<name> <cmd>)
+   (<cmd> ^error <error>)
+-->
+   (write |Error on | <name> | = '| <error> |'| (crlf))
+}
+
+# if the remote is not in remote mode, changes the mode
+sp {explorer*propose*change-remote-mode
+   (state <s> ^name explorer
+              ^remote-sensor <remote>)
+   (<remote> ^port <port>
+             ^mode <> proximity)
+-->
+   (<s> ^operator <o> + >)
+   (<o> ^name change-remote-mode
+        ^port <port>)
+}
+
+sp {explorer*apply*change-remote-mode
+   (state <s> ^name explorer
+              ^operator <o>
+              ^io.output-link <out>)
+   (<o> ^name change-remote-mode
+        ^port <port>)
+-->
+   (<out> ^sensor <sensor>)
+   (<sensor> ^port <port>
+             ^set.mode remote)
+}
+
+# When a button is pressed, this catches the event
+sp {explorer*propose*handle-button-press
+   (state <s> ^name explorer 
+							 ^io.input-link.brick.button <button>)
+   (<button> ^prev-state released
+             ^cur-state pressed)
+-->
+	(<s> ^operator <o> + = >)
+   (<o> ^name handle-button-press
+        ^button <button>)
+}
+
+sp {explorer*apply*handle-button-press*toggle*mode*wait
+	(state <s> ^name explorer
+						 ^operator.handle-button-press
+						 ^mode explore)
+-->
+	(<s> ^mode explore -
+			 ^mode wait
+			 ^stop-agent true)
+}
+
+sp {explorer*apply*handle-button-press*toggle*mode*explore
+	(state <s> ^name explorer
+						 ^operator.handle-button-press
+						 ^mode wait)
+-->
+	(<s> ^mode wait -
+			 ^mode explore)
+}
+
+# Stop the robot when a button is pressed
+sp {explorer*propose*stop
+	(state <s> ^name explorer
+						 ^stop-agent true)
+-->
+	(<s> ^operator <o> +)
+	(<o> ^name stop)
+}
+
+sp {explorer*apply*stop
+	(state <s> ^name explorer
+						 ^operator.name stop
+						 ^stop-agent true)
+-->
+	(<s> ^stop-agent true -)
+}
+
+# Movement commands
+sp {explorer*elaborate*obstacle*false
+	(state <s> ^name explorer
+						 ^remote-sensor.distance > 10)
+-->
+	(<s> ^obstacle false)
+}
+
+sp {explorer*elaborate*obstacle*true
+	(state <s> ^name explorer
+						 ^remote-sensor.distance <= 10)
+-->
+	(<s> ^obstacle true)
+}
+
+# Move if no obstacles
+sp {explorer*propose*move
+	(state <s> ^name explorer
+						 ^mode explore
+						 ^obstacle false)
+-->
+	(<s> ^operator <o> +)
+	(<o> ^name move
+			 ^direction forward
+			 ^power 40)
+}
+
+# Turn if an obstacle
+sp {explorer*propose*rotate-left
+	(state <s> ^name explorer
+						 ^mode explore
+						 ^obstacle true)
+-->
+	(<s> ^operator <o> +)
+	(<o> ^name rotate-left
+			 ^power 40)
+}
+
+# move
+sp {anystate*apply*move*output-link
+	(state <s> ^operator <o>
+						 ^io.output-link <out>
+						 ^left-motor.port <lp>
+						 ^right-motor.port <rp>)
+	(<o> ^name move 
+			 ^power <pow>
+			 ^direction <dir>)
+-->
+	(<out> ^motor <left> 
+				 ^motor <right>)
+	(<left> ^port <lp>
+					^start <left-start>)
+	(<right> ^port <rp>
+					 ^start <right-start>)
+	(<left-start> ^direction <dir>
+								^power <pow>)
+	(<right-start> ^direction <dir>
+								 ^power <pow>)
+}
+
+# Stop
+sp {anystate*apply*stop*output-link
+	(state <s> ^operator.name stop
+						 ^io.output-link <out>
+						 ^left-motor.port <lp>
+						 ^right-motor.port <rp>)
+-->
+	(<out> ^motor <left> 
+				 ^motor <right>)
+	(<left> ^port <lp>
+					^stop <stop>)
+	(<right> ^port <rp>
+					 ^stop <stop>)
+}
+
+# rotate-left
+sp {anystate*apply*rotate-left*output-link
+	(state <s> ^operator <o>
+						 ^io.output-link <out>
+						 ^left-motor.port <lp>
+						 ^right-motor.port <rp>)
+	(<o> ^name rotate-left
+			 ^power <pow>)
+-->
+	(<out> ^motor <left> 
+				 ^motor <right>)
+	(<left> ^port <lp>
+					^start <left-start>)
+	(<right> ^port <rp>
+					 ^start <right-start>)
+	(<left-start> ^direction backward
+								^power <pow>)
+	(<right-start> ^direction forward
+								 ^power <pow>)
+}
+
+# rotate-right
+sp {anystate*apply*rotate-right*output-link
+	(state <s> ^operator <o>
+						 ^io.output-link <out>
+						 ^left-motor.port <lp>
+						 ^right-motor.port <rp>)
+	(<o> ^name rotate-right
+			 ^power <pow>)
+-->
+	(<out> ^motor <left> 
+				 ^motor <right>)
+	(<left> ^port <lp>
+					^start <left-start>)
+	(<right> ^port <rp>
+					 ^start <right-start>)
+	(<left-start> ^direction forward
+								^power <pow>)
+	(<right-start> ^direction backward
+								 ^power <pow>)
+}
+
