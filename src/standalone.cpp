@@ -20,7 +20,6 @@ int main(int argc, char** argv){
 
 	while(true){
 		sm.step();
-		usleep(10);
 	}
 
 	return 0;

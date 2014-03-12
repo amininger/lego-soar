@@ -26,6 +26,12 @@ sp {explorer*propose*wait
    (<o> ^name wait)
 }
 
+sp {explorer*elaborate*substate*name
+	(state <s> ^superstate.operator.name <name>)
+-->
+	(<s> ^name <name>)
+}
+
 # Elaborates the remote sensor onto the explorer
 sp {explorer*elaborate*remote-sensor
    (state <s> ^name explorer
@@ -249,4 +255,6 @@ sp {anystate*apply*rotate-right*output-link
 	(<right-start> ^direction backward
 								 ^power <pow>)
 }
+
+
 
