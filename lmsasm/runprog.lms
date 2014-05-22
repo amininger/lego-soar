@@ -1,0 +1,14 @@
+vmthread MAIN
+{
+	DATA32 Timer
+	DATA32 Status
+
+	UI_DRAW(FILLWINDOW,0x00,0,0)
+	UI_DRAW(TEXT,FG_COLOR,10,50,'hello world')
+	UI_DRAW(UPDATE)
+
+	SYSTEM('/media/card/run_prog /media/card/test_remote.soar',Status)
+
+	TIMER_WAIT(1000,Timer)
+	TIMER_READY(Timer)
+}

@@ -1,10 +1,10 @@
 PROGRAM=../bin/standalone
 DOBJECTS=standalone.cpp
 
-INCLUDEPATH=-I$(EV3)/lcmlite -I$(EV3)/include -I$(EV3)/newsoarev3 -I$(SOAR_HOME)/include -I$(ARM_GCC)/arm-none-linux-gnueabi/include 
-LIBRARYPATH=-L$(ARM_GCC)/arm-none-linux-gnueabi/lib -L$(EV3)/lib/arm
+INCLUDEPATH=-I$(EV3)/lcmlite -I$(EV3)/include -I$(EV3)/soarev3 -I$(SOAR_HOME)/include# -I$(ARM_GCC)/arm-none-linux-gnueabi/include
+LIBRARYPATH=-L$(ARM_GCC)/arm-none-linux-gnueabi/libc/lib -L$(EV3)/lib/arm
 
-LIBRARIES=-lsoarev3 -lSoar -llcmlite -lrt -ldl -lpthread -lstdc++
+LIBRARIES=-lsoarev3 -lSoar -llcmlite -lrt -ldl -lpthread
 
 TOOLPREFIX=arm-none-linux-gnueabi-
 CC=$(TOOLPREFIX)g++

@@ -8,7 +8,7 @@ CC=$(TOOLPREFIX)g++
 
 FLAGS=-shared -fpic
 
-INCLUDEPATH=-I$(EV3)/newsoarev3 -I$(EV3)/lcmlite -I$(EV3)/include -I$(SOAR_HOME)/include 
+INCLUDEPATH=-I$(EV3)/soarev3 -I$(EV3)/lcmlite -I$(EV3)/include -I$(SOAR_HOME)/include 
 LIBRARYPATH=-L$(SOAR_HOME) -L$(EV3)/lib/x86
 LIBRARIES=-llcmlite -lSoar -lrt -ldl -lpthread
 
