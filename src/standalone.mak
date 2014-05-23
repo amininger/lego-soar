@@ -9,7 +9,7 @@ LIBRARIES=-lsoarev3 -lSoar -llcmlite -lrt -ldl -lpthread
 TOOLPREFIX=arm-none-linux-gnueabi-
 CC=$(TOOLPREFIX)g++
 
-FLAGS=
+FLAGS=-Wl,-rpath,/media/card/lib
 
 all:: realclean $(DOBJECTS) $(PROGRAM)
 

@@ -79,14 +79,14 @@ bool Motor::handleSetCommand(IntBuffer& buffer, Identifier* commandId){
 			commandId->CreateStringWME("error", "Unrecognized direction");
 			return false;
 		}
-		cout << "Set motor " << (short)port << " direction to " << dir << endl;
+		//cout << "Set motor " << (short)port << " direction to " << dir << endl;
 		buffer.push_back(packBytes(port-1, MOTOR_COMMAND_SET_DIRECTION, d, 0));
 	}
 
 	int speed;
 	if(WMUtil::getValue(commandId, "speed", speed)){
 		if(speed >= -100 && speed <= 100){
-			cout << " Set motor " << (short)port << " speed to " << speed << endl;
+		//	cout << " Set motor " << (short)port << " speed to " << speed << endl;
 			buffer.push_back(packBytes(port-1, MOTOR_COMMAND_SET_SPEED, (char)speed, 0));
 		} else {
 			commandId->CreateStringWME("error", "Speed must be between -100 and 100");

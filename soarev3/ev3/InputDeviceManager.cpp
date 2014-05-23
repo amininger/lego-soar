@@ -45,6 +45,7 @@ InputDeviceManager::InputDeviceManager() {
 	}
 
 	for(int i = 0; i < NUM_INPUTS; i++){
+		analogDevs[i] = 0;
 		devModes[i] = 0;
 	}
 }
@@ -70,6 +71,14 @@ void InputDeviceManager::handleCommand(Ev3Command* command){
 		DevCon.Type[port] = type; //This instruction has no effect in the code
 		DevCon.Mode[port] = mode;
 		ioctl(uartFile, UART_SET_CONN, &DevCon);
+	} else if(commandCode == CREATE_ANALOG_SENSOR_COMMAND){
+		uchar port, type, blank1, blank2;
+		unpackBytes(command->params[1], port, type, blank1, blank2);
+		analogDevs[port] = type;
+	} else if(commandCode == DELETE_ANALOG_SENSOR_COMMAND){
+		uchar port, blank1, blank2, blank3;
+		unpackBytes(command->params[2], port, blank1, blank2, blank3);
+		analogDevs[port] = 0;
 	}
 }
 
@@ -96,6 +105,12 @@ Ev3Status InputDeviceManager::getStatus(){
 
 				continue;
 			}
+		} 
+		if(analogDevs[i] != 0){
+			// Report back information about an analog device 
+			status.info.push_back(packBytes(SENSOR_CAT_ANALOG, i, analogDevs[i], 0));
+			status.info.push_back(packShorts(analog->Pin6[i][analog->Actual[i]], 0));
+			continue;
 		}
 		status.info.push_back(packBytes(SENSOR_CAT_NONE, i, 0, 0));
 	}

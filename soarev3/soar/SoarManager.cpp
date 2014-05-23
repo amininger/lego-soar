@@ -132,6 +132,7 @@ void SoarManager::readSensorsStatus(IntBuffer& status){
 			offset += 1;
 			break;
 		case SENSOR_CAT_SERIAL:
+		case SENSOR_CAT_ANALOG:
 			if(inputs[port] != 0 && inputs[port]->getDeviceType() != type){
 				delete inputs[port];
 				inputs[port] = 0;
@@ -143,7 +144,11 @@ void SoarManager::readSensorsStatus(IntBuffer& status){
 				uint offsetCopy = offset;
 				inputs[port]->readStatus(status, offsetCopy);
 			}
-			offset += 3;
+			if(cat == SENSOR_CAT_SERIAL){
+				offset += 3;
+			} else {
+				offset += 2;
+			}
 			break;
 		default:
 			offset += 1;
@@ -158,6 +163,9 @@ void SoarManager::createSensor(uint port, uint type){
 		break;
 	case EV3_IR_REMOTE_SENSOR_TYPE:
 		inputs[port] = new IRRemote(port+1, comm);
+		break;
+	case EV3_TOUCH_SENSOR_TYPE:
+		inputs[port] = new TouchSensor(port+1, comm);
 		break;
 	}
 }
@@ -185,7 +193,7 @@ void SoarManager::handleOutput(string attName, WMElement* wme){
 	SoarDevice* dev = 0;
 	Identifier* id = wme->ConvertToIdentifier();
 	string att = string(attName);
-	cout << "ATT: " << att << endl;
+	//cout << "ATT: " << att << endl;
 	if(att == "brick"){
 		dev = brick;
 	} else if(att == "motor"){
@@ -202,7 +210,11 @@ void SoarManager::handleOutput(string attName, WMElement* wme){
 				dev = inputs[port-1];
 			}
 		}
-	} else {
+	} else if(att == "manager"){
+		if(!this->readSoarCommand(id)){
+			id->CreateStringWME("status", "error");
+		}
+	}	else {
 		id->CreateStringWME("error", "Unrecognized command");
 		id->CreateStringWME("status", "error");
 		return;
@@ -213,3 +225,59 @@ void SoarManager::handleOutput(string attName, WMElement* wme){
 		}
 	}
 }
+
+bool SoarManager::readSoarCommand(Identifier* id){
+	Identifier* childId;
+
+	if(WMUtil::getValue(id, "create-sensor", childId)){
+		if(!handleCreateSensorCommand(childId)){
+			return false;
+		}
+	}
+
+	if(WMUtil::getValue(id, "delete-sensor", childId)){
+		if(!handleDeleteSensorCommand(childId)){
+			return false;
+		}
+	}
+}
+
+bool SoarManager::handleCreateSensorCommand(Identifier* id){
+	Ev3Command command;
+	command.dev = INPUT_MAN_DEV;
+
+	string type;
+	if(!WMUtil::getValue(id, "type", type)){
+		return false;
+	}
+
+	int port;
+	if(!WMUtil::getValue(id, "port", port)){
+		return false;
+	}
+
+	if(type == "touch"){
+		command.params.push_back(CREATE_ANALOG_SENSOR_COMMAND);
+		command.params.push_back(packBytes(port-1, EV3_TOUCH_SENSOR_TYPE, 0, 0));
+	}
+
+	comm->sendCommandToEv3(command, id);
+	return true;
+}
+
+bool SoarManager::handleDeleteSensorCommand(Identifier* id){
+	Ev3Command command;
+	command.dev = INPUT_MAN_DEV;
+
+	int port;
+	if(!WMUtil::getValue(id, "port", port)){
+		return false;
+	}
+
+	command.params.push_back(DELETE_ANALOG_SENSOR_COMMAND);
+	command.params.push_back(packBytes(port-1, 0, 0, 0));
+
+	comm->sendCommandToEv3(command, id);
+	return true;
+}
+

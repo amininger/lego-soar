@@ -19,7 +19,7 @@
 
 class TouchSensor : public SoarDevice{
 public:
-	TouchSensor(uint devID, uint port, SoarCommunicator* comm);
+	TouchSensor(uint port, SoarCommunicator* comm);
 	~TouchSensor();
 
 	void updateInputLink(sml::Identifier* inputLink);
@@ -32,10 +32,10 @@ public:
 private:
 	SoarCommunicator* comm;
 
-	uint devID;
 	uint port;
-	bool prev;
-	bool pressed;
+
+	int prev;
+	int strength;
 
 	sml::Identifier* rootId;
 };

@@ -26,6 +26,7 @@ private:
 
 	int analogFile;
 	ANALOG* analog;
+	uchar analogDevs[NUM_INPUTS];
 
 	ushort devModes[NUM_INPUTS];
 };

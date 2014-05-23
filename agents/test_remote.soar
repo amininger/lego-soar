@@ -14,6 +14,15 @@ sp {topstate*apply*init-agent
         ^name ev3-agent)
 }
 
+sp {topstate*apply*init-agent*change*sensor
+	(state <s> ^operator.name init-agent
+						 ^io.output-link <out>)
+-->
+	(<out> ^manager.create-sensor <cs>)
+	(<cs> ^port 3
+				^type touch)
+}
+
 # Will apply the wait operator when there's nothing else to do
 sp {topstate*propose*wait
    (state <s> ^superstate <ss>

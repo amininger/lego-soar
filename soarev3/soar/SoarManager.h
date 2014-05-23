@@ -46,6 +46,10 @@ private:
 	void updateInputLink(sml::Identifier* inputLink);
 	void addOutputListeners();
 
+	bool readSoarCommand(sml::Identifier* id);
+	bool handleCreateSensorCommand(sml::Identifier* id);
+	bool handleDeleteSensorCommand(sml::Identifier* id);
+
 	SoarCommunicator* comm;
 
 	Brick* brick;
