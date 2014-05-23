@@ -41,6 +41,14 @@ sp {topstate*elaborate*remote-sensor
    (<s> ^remote-sensor <remote>)
 }
 
+sp {topstate*elaborate*color-sensor
+   (state <s> ^name ev3-agent
+              ^io.input-link.sensor <color>)
+   (<color> ^type color)
+-->
+   (<s> ^color-sensor <color>)
+}
+
 # Removes output-link commands when a status is put on them
 sp {topstate*remove*completed*actions*d1
    (state <s> ^name ev3-agent
@@ -66,11 +74,20 @@ sp {topstate*propose*change-remote-mode
    (state <s> ^name ev3-agent
               ^remote-sensor <remote>)
    (<remote> ^port <port>
-             ^mode <> proximity)
+             ^mode <> beacon)
 -->
-   (<s> ^operator <o> + >)
+   (<s> ^operator <o> + > =)
    (<o> ^name change-remote-mode
         ^port <port>)
+}
+sp {topstate*prefer*color*over*remote
+	(state <s> ^name ev3-agent
+						 ^operator <o1> +
+						 ^operator <o2> +)
+	(<o1> ^name change-color-mode)
+	(<o2> ^name change-remote-mode)
+-->
+	(<s> ^operator <o1> > <o2>)
 }
 
 sp {topstate*apply*change-remote-mode
@@ -82,7 +99,30 @@ sp {topstate*apply*change-remote-mode
 -->
    (<out> ^sensor <sensor>)
    (<sensor> ^port <port>
-             ^set.mode proximity)
+             ^set.mode beacon)
+}
+
+sp {topstate*propose*change-color-mode
+   (state <s> ^name ev3-agent
+              ^color-sensor <color>)
+   (<color> ^port <port>
+             ^mode <> color)
+-->
+   (<s> ^operator <o> + > =)
+   (<o> ^name change-color-mode
+        ^port <port>)
+}
+
+sp {topstate*apply*change-color-mode
+   (state <s> ^name ev3-agent
+              ^operator <o>
+              ^io.output-link <out>)
+   (<o> ^name change-color-mode
+        ^port <port>)
+-->
+   (<out> ^sensor <sensor>)
+   (<sensor> ^port <port>
+             ^set.mode color)
 }
 
 # When a button is pressed, this catches the event
@@ -98,6 +138,7 @@ sp {topstate*propose*handle-button-press
    (<o> ^name handle-button-press
         ^button <button>)
 }
+
 
 # Red-up button is pressed, go forward
 sp {topstate*apply*handle-button-press*red-up
