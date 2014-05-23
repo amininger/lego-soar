@@ -115,4 +115,8 @@ Run ./standalone agents/AGENT_FILE.soar
 Soar Interface
 ---------------------------------------------------
 
+Color modes
+reflect, ambient, color
 
+Remote modes
+proximity, remote, beacon
