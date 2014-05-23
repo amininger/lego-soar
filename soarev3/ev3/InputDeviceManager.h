@@ -28,7 +28,7 @@ private:
 	ANALOG* analog;
 	uchar analogDevs[NUM_INPUTS];
 
-	ushort devModes[NUM_INPUTS];
+	DEVCON devcon;
 };
 
 #endif /* INPUTDEVICEMANAGER_H_ */

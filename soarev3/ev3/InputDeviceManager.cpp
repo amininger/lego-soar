@@ -46,7 +46,6 @@ InputDeviceManager::InputDeviceManager() {
 
 	for(int i = 0; i < NUM_INPUTS; i++){
 		analogDevs[i] = 0;
-		devModes[i] = 0;
 	}
 }
 
@@ -64,13 +63,8 @@ void InputDeviceManager::handleCommand(Ev3Command* command){
 		if(PRINT_EV3_DEBUG){
 			cout << "SET MODE: " << (uint)port << ", " << (uint)mode << ", " << (uint)type << endl;
 		}
-		devModes[port] = mode;
-
-		DEVCON DevCon;
-		DevCon.Connection[port] = CONN_INPUT_UART;
-		DevCon.Type[port] = type; //This instruction has no effect in the code
-		DevCon.Mode[port] = mode;
-		ioctl(uartFile, UART_SET_CONN, &DevCon);
+		devcon.Mode[port] = mode;
+		ioctl(uartFile, UART_SET_CONN, &devcon);
 	} else if(commandCode == CREATE_ANALOG_SENSOR_COMMAND){
 		cout << "Create Analog SEnsor" << endl;
 		uchar port, type, blank1, blank2;
@@ -92,8 +86,9 @@ Ev3Status InputDeviceManager::getStatus(){
 		if(uartFile != -1){
 			UARTCTL info;
 			info.Port = i;
-			info.Mode = devModes[i];
+			info.Mode = devcon.Mode[i];
 			ioctl(uartFile, UART_READ_MODE_INFO, &info);
+
 
 			if(info.TypeData.Type != 0){
 				uint sensorInfo = packBytes(SENSOR_CAT_SERIAL, i,
@@ -103,6 +98,9 @@ Ev3Status InputDeviceManager::getStatus(){
 				uchar* data = (uchar*)uart->Raw[i][uart->Actual[i]];
 				status.info.push_back(packBytes(&data[0]));
 				status.info.push_back(packBytes(&data[4]));
+
+				devcon.Type[i] = info.TypeData.Type;
+				devcon.Connection[i] = CONN_INPUT_UART;
 
 				continue;
 			}
