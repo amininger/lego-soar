@@ -35,6 +35,9 @@ SoarManager::SoarManager(SoarCommunicator* comm, std::string agentSource, bool d
 
 	agent->RegisterForRunEvent(smlEVENT_AFTER_OUTPUT_PHASE, &runEventHandler, (void*)this, true);
 
+	// Manager
+	agent->AddOutputHandler("manager", SoarManager::outputEventHandler, (void*)this);
+
 	// Brick
 	brick = new Brick(comm);
 	agent->AddOutputHandler("brick", SoarManager::outputEventHandler, (void*)this);

@@ -34,8 +34,8 @@ private:
 
 	uint port;
 
-	int prev;
-	int strength;
+	bool pressed;
+	bool prev;
 
 	sml::Identifier* rootId;
 };

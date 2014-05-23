@@ -72,6 +72,7 @@ void InputDeviceManager::handleCommand(Ev3Command* command){
 		DevCon.Mode[port] = mode;
 		ioctl(uartFile, UART_SET_CONN, &DevCon);
 	} else if(commandCode == CREATE_ANALOG_SENSOR_COMMAND){
+		cout << "Create Analog SEnsor" << endl;
 		uchar port, type, blank1, blank2;
 		unpackBytes(command->params[1], port, type, blank1, blank2);
 		analogDevs[port] = type;

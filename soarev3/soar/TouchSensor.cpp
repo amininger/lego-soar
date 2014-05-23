@@ -18,7 +18,7 @@
 using namespace std;
 
 TouchSensor::TouchSensor(uint port, SoarCommunicator* comm)
-: comm(comm), port(port), strength(0), prev(0), rootId(0) {
+: comm(comm), port(port), pressed(false), prev(false), rootId(0) {
 
 }
 
@@ -35,9 +35,9 @@ void TouchSensor::updateInputLink(sml::Identifier* inputLink){
 		rootId->CreateStringWME("type", "touch");
 		rootId->CreateIntWME("port", port);
 	}
-	WMUtil::updateIntWME(rootId, "value", strength);
-	WMUtil::updateIntWME(rootId, "prev-value", prev);
-	prev = strength;
+	WMUtil::updateStringWME(rootId, "pressed", (pressed ? "true" : "false"));
+	WMUtil::updateStringWME(rootId, "prev-pressed", (prev ? "true" : "false"));
+	prev = pressed;
 }
 
 bool TouchSensor::readSoarCommand(sml::Identifier* commandId){
@@ -51,7 +51,7 @@ void TouchSensor::readStatus(IntBuffer& buffer, uint& offset){
 	ushort str, blank;
 	unpackShorts(buffer[offset], str, blank);
 
-	strength = str;
+	pressed = (str > 2000);
 }
 
 

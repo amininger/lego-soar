@@ -19,7 +19,7 @@ sp {topstate*apply*init-agent*change*sensor
 						 ^io.output-link <out>)
 -->
 	(<out> ^manager.create-sensor <cs>)
-	(<cs> ^port 3
+	(<cs> ^port 2
 				^type touch)
 }
 
@@ -66,7 +66,7 @@ sp {topstate*propose*change-remote-mode
    (state <s> ^name ev3-agent
               ^remote-sensor <remote>)
    (<remote> ^port <port>
-             ^mode <> remote)
+             ^mode <> proximity)
 -->
    (<s> ^operator <o> + >)
    (<o> ^name change-remote-mode
@@ -82,7 +82,7 @@ sp {topstate*apply*change-remote-mode
 -->
    (<out> ^sensor <sensor>)
    (<sensor> ^port <port>
-             ^set.mode remote)
+             ^set.mode proximity)
 }
 
 # When a button is pressed, this catches the event
@@ -109,11 +109,11 @@ sp {topstate*apply*handle-button-press*red-up
 -->
    (<out> ^motor <left>
           ^motor <right>)
-   (<left> ^port 2
+   (<left> ^port 1
            ^start <left-start>)
    (<left-start> ^direction forward
                  ^power 40)
-   (<right> ^port 3
+   (<right> ^port 2
             ^start <right-start>)
    (<right-start> ^direction forward
                   ^power 40)
@@ -129,11 +129,11 @@ sp {topstate*apply*handle-button-press*red-down
 -->
    (<out> ^motor <left>
           ^motor <right>)
-   (<left> ^port 2
+   (<left> ^port 1
            ^start <left-start>)
    (<left-start> ^direction backward
                  ^power 40)
-   (<right> ^port 3
+   (<right> ^port 2
             ^start <right-start>)
    (<right-start> ^direction backward
                   ^power 40)
@@ -149,11 +149,11 @@ sp {topstate*apply*handle-button-press*blue-up
 -->
    (<out> ^motor <left>
           ^motor <right>)
-   (<left> ^port 2
+   (<left> ^port 1
            ^start <left-start>)
    (<left-start> ^direction backward
                  ^power 40)
-   (<right> ^port 3
+   (<right> ^port 2
             ^start <right-start>)
    (<right-start> ^direction forward
                   ^power 40)
@@ -169,11 +169,11 @@ sp {topstate*apply*handle-button-press*blue-down
 -->
    (<out> ^motor <left>
           ^motor <right>)
-   (<left> ^port 2
+   (<left> ^port 1
            ^start <left-start>)
    (<left-start> ^direction forward
                  ^power 40)
-   (<right> ^port 3
+   (<right> ^port 2
             ^start <right-start>)
    (<right-start> ^direction backward
                   ^power 40)
@@ -200,9 +200,9 @@ sp {topstate*apply*handle-button-release*stop
 -->
    (<out> ^motor <left>
           ^motor <right>)
-   (<left> ^port 2
+   (<left> ^port 1
            ^stop <ls>)
-   (<right> ^port 3
+   (<right> ^port 2
             ^stop <rs>)
 }
    
