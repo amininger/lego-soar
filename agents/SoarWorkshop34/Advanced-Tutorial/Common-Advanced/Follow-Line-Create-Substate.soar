@@ -1,0 +1,15 @@
+###################################################
+#	follow-line operator
+###################################################
+
+sp {Stage2*propose*follow-line
+	(state <s>	^name Line-Follower
+				^mode follow
+				^left-motor <lm>
+				^right-motor <rm>
+				^color-meaning <cm>
+				^color-sensor <cs>)
+-->
+	(<s>	^operator <o> +)
+	(<o>	^name follow-line)
+}

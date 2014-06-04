@@ -1,0 +1,135 @@
+###################################################
+# Common Includes (init, wait, etc.)
+# These are provided for you.
+###################################################
+
+source ../Common-Include.soar
+source Common-Advanced-Stage1.soar
+
+###################################################
+#	move-forward operator
+###################################################
+sp {Stage1*propose*move-forward
+	(state <s>	^name Follow-Line-Substate
+				^mode follow
+				^color-meaning <cm>
+				^color-sensor-value <value>)
+	(<cm>	^forward <value>)
+-->
+	(<s> ^operator <o> +)
+	(<o> ^name move-forward)
+}
+
+sp {Stage1*apply*move-forward
+	(state <s>	^operator.name move-forward
+				^io.output-link <out>
+				^left-motor-port <left-port>
+				^right-motor-port <right-port>)
+-->
+	(<out>	^motor <left>
+			^motor <right>)
+	(<left>	^port <left-port>
+			^start <left-start>)
+	(<right>	^port <right-port>
+				^start <right-start>)
+	(<left-start>	^direction backward
+					^power 40)
+	(<right-start>	^direction backward
+					^power 40)
+}
+
+sp (Stage1*elaboration*has-turned*left
+	(state <s>	^start-count-left <value-left>
+				^start-count-right <value-right>
+				^io.input-link <il>
+				^left-motor-port <lmp>
+				^right-motor-port <rmp>)
+	(<il>	^motor <left>
+			^motor <right>)
+	(<left> ^port <lmp>
+			^sensor { >= <value-left> })
+	(<right>	^port <lmp>
+				^sensor { <= <value-right> })
+-->
+	(<s>	^has-turned YES)
+}
+
+sp (Stage1*elaboration*has-turned*right
+	(state <s>	^start-count-left <value-left>
+				^start-count-right <value-right>
+				^io.input-link <il>
+				^left-motor-port <lmp>
+				^right-motor-port <rmp>)
+	(<il>	^motor <left>
+			^motor <right>)
+	(<left> ^port <lmp>
+			^sensor { <= <value-left> })
+	(<right>	^port <lmp>
+				^sensor { >= <value-left> })
+-->
+	(<s>	^has-turned YES)
+}
+
+###################################################
+#	move*left operator
+###################################################
+
+
+sp {Stage1*propose*move-left-90
+	(state <s>	^name Follow-Line-Substate
+				^mode follow
+				^color-left <value>
+				^color-sensor-value <value>)
+-->
+	(<s> ^operator <o> +)
+	(<o> ^name move-left-90)
+}
+
+sp {Stage1*apply*move-left-90
+	(state <s>	^operator.name move-left-90
+				^io.output-link <out>
+				^left-motor-port <left-port>
+				^right-motor-port <right-port>)
+-->
+	(<out>	^motor <left>
+			^motor <right>)
+	(<left>	^port <left-port>
+			^start <left-start>)
+	(<right>	^port <right-port>
+				^start <right-start>)
+	(<left-start>	^direction forward
+					^power 40)
+	(<right-start>	^direction backward
+					^power 40)
+}
+
+###################################################
+#	move*right operator
+###################################################
+sp {Stage1*propose*move-right-90
+	(state <s>	^name Follow-Line-Substate
+				^mode follow
+				^color-right <value>
+				^color-sensor-value <value>)
+-->
+	(<s> ^operator <o> +)
+	(<o> ^name move-right-90)
+}
+
+sp {Stage1*apply*move-right
+	(state <s>	^operator.name move-right-90
+				^io.output-link <out>
+				^left-motor-port <left-port>
+				^right-motor-port <right-port>)
+-->
+	(<out>	^motor <left>
+			^motor <right>)
+	(<left>	^port <left-port>
+			^start <left-start>)
+	(<right>	^port <right-port>
+				^start <right-start>)
+	(<left-start>	^direction backward
+					^power 40)
+	(<right-start>	^direction forward
+					^power 40)
+}

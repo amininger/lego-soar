@@ -1,0 +1,101 @@
+
+###################################################
+#	handle-button-press operator
+#
+#	When a button is pressed on the main brick, this
+#	catches the event and will switch the modes.
+#
+#	Modes:
+#		follow
+#		wait
+###################################################
+
+# Proposal Rule
+sp {Common-Include*Stop-Agent*propose*handle-button-press
+	(state <s>	^name Line-Follower
+				^io.input-link.brick.buttons.button <button>
+				^mode <cur-mode>)
+	(<button>	^prev-state released
+				^cur-state pressed)
+-->
+	(<s>	^operator <o> + = >)
+	(<o>	^name handle-button-press
+			^button <button>
+			^mode <cur-mode>)
+}
+
+# Apply Rules
+
+# If we were just following, then the button press is to stop
+sp {Common-Include*Stop-Agent*apply*handle-button-press*toggle*mode*wait
+	(state <s>	^name Line-Follower
+				^operator <o>
+				^mode follow)
+	(<o>	^name handle-button-press
+			^mode follow)
+-->
+	(<s>	^mode follow -
+			^mode wait
+			^stop-agent YES) # Create the flag to stop the agent
+}
+
+# If we were just waiting, then the button press is to start following
+sp {Common-Include*Stop-Agent*apply*handle-button-press*toggle*mode*explore
+	(state <s>	^name Line-Follower
+				^operator <o>
+				^mode wait)
+	(<o>	^name handle-button-press
+			^mode wait)
+-->
+	(<s>	^mode wait -
+			^mode follow)
+}
+
+###################################################
+#	stop operator
+#
+#	When there is a flag on the top state called
+#	"stop-agent" with value YES, this operator is
+#	proposed with best preference and selected to
+#	stop the robot.
+###################################################
+
+# Proposal Rule
+sp {Common-Include*Stop-Agent*propose*stop
+	(state <s>	^name Line-Follower
+				^stop-agent YES)
+-->
+	(<s>	^operator <o> + >)
+	(<o>	^name stop)
+}
+
+# Apply rule
+
+# This puts on the output link a command
+# to each motor to have it stop.  Even if
+# we know there isn't a motor connected to
+# that port, we tell it to stop as this
+# is a generic rule and will work no matter
+# how many motors we have plugged in to the
+# motor ports.
+
+sp {Common-Include*Stop-Agent*apply*stop
+	(state <s>	^name Line-Follower
+				^operator.name stop
+				^stop-agent true
+				^io.output-link <out>)
+-->
+	(<s> ^stop-agent true -)
+	(<out>	^motor <1>
+			^motor <2>
+			^motor <3>
+			^motor <4>)
+    (<1>	^port 1
+			^stop <stop1>)
+    (<2>	^port 2
+			^stop <stop2>)
+    (<3>	^port 3
+			^stop <stop3>)
+	(<4>	^port 4
+			^stop <stop4>)
+}

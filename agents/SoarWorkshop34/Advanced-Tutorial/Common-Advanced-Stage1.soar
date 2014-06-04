@@ -1,0 +1,5 @@
+pushd Common-Advanced
+
+source Init-Agent-Stage1.soar
+
+popd

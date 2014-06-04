@@ -1,0 +1,9 @@
+pushd Common-Include
+
+source Init-Agent.soar
+source Output-Link.soar
+source Sensors.soar
+source Stop-Agent.soar
+source Wait.soar
+
+popd

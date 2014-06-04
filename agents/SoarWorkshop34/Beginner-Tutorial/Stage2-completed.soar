@@ -1,0 +1,211 @@
+###################################################
+# Common Includes (init, wait, etc.)
+# These are provided for you.
+###################################################
+
+source ../Common-Include.soar
+
+###################################################
+# This file contains the following operators:
+#	follow-line
+#	follow-line*init-substate
+#	move-left
+#	move-right
+#	move-forward
+#
+# This should be a total of nine rules
+###################################################
+
+###################################################
+#	follow-line operator
+###################################################
+
+sp {Stage2*propose*follow-line
+	(state <s>	^name Line-Follower
+				^mode follow
+				^left-motor-port <lmp>
+				^right-motor-port <rmp>
+				^color-left <cl>
+				^color-right <cr>
+				^color-forward <cf>)
+-->
+	(<s>	^operator <o> +)
+	(<o>	^name follow-line)
+}
+
+###################################################
+#	follow-line*init-substate operator
+###################################################
+
+sp {Stage2*propose*follow-line*init-substate
+	(state <s>	-^name
+				^attribute operator
+				^impasse no-change
+				^superstate <ss>)
+	(<ss>	^name Line-Follower
+			^left-motor-port <lmp>
+			^right-motor-port <rmp>
+			^color-left <cl>
+			^color-right <cr>
+			^color-forward <cf>)
+-->
+	(<s>	^operator <o> +)
+	(<o>	^name follow-line*init-substate)
+}
+
+sp {Stage2*apply*follow-line*init-substate
+	(state <s>	^operator.name follow-line*init-substate
+				^superstate <ss>)
+	(<ss>	^left-motor-port <lmp>
+			^right-motor-port <rmp>
+			^color-left <cl>
+			^color-right <cr>
+			^color-forward <cf>)
+-->
+	(<s>	^left-motor-port <lmp>
+			^right-motor-port <rmp>
+			^color-left <cl>
+			^color-right <cr>
+			^color-forward <cf>
+			^name Follow-Line-Substate)
+}
+
+# There are a couple changes to these operators
+# between Stage 1 and Stage 2
+#
+# 1) The state in which they execute in is the
+#    "Follow-Line-Substate" instead of the
+#    "Line-Follower" substate
+# 2) The operator proposals no longer test for the
+#    ^mode follow attribute as the entire substate
+#    will only exist if the mode is follow.
+# 3) The apply rules grab the io link from the
+#    superstate as substates do not contain the io
+#    link.
+
+###################################################
+#	move-forward operator
+###################################################
+
+# Propose the move-forward operator if the current
+# detected color sensor value is the forward value
+# and our mode is "follow"
+sp {Stage2*propose*move-forward
+	(state <s>	^name Follow-Line-Substate
+				^color-forward <value>
+				^color-sensor-value <value>)
+-->
+	(<s> ^operator <o> +)
+	(<o> ^name move-forward)
+}
+
+# Apply the move-forward operator if we have the
+# move-forward operator selected, an output link,
+# a left motor port, and a right motor port.
+sp {Stage2*apply*move-forward
+	(state <s>	^operator.name move-forward
+				^superstate.io.output-link <out>
+				^left-motor-port <left-port>
+				^right-motor-port <right-port>)
+-->
+	# Create a command for each motor on the output
+	# link
+	(<out>	^motor <left>
+			^motor <right>)
+	# For the "left" motor identifier, set the port
+	# to be the left motor's port.  Also, create an
+	# identifier named "start" for setting the power
+	# level and direction of the motor.
+	(<left>	^port <left-port>
+			^start <left-start>)
+	# Do the same thing for the right motor but with
+	# the right motor's port
+	(<right>	^port <right-port>
+				^start <right-start>)
+	# Since this is the move-forward operator, set the
+	# direction to be backward for both the left and
+	# right motor.  This means that we consider the
+	# side of the robot without the IR sensor the
+	# front.  Also, set the power to be 40% of the total
+	# available power.
+	(<left-start>	^direction backward
+					^power 40)
+	(<right-start>	^direction backward
+					^power 40)
+}
+
+###################################################
+#	move-left operator
+###################################################
+
+# This move-left operator is the same as the
+# move-forward operator except for three changes.
+# 1) The operator has been renamed to move-left
+# 2) The color-forward test in the proposal has been
+#    changed to color-left
+# 3) The direction for the left motor has been changed
+#    to forward instead of backward.
+sp {Stage2*propose*move-left
+	(state <s>	^name Follow-Line-Substate
+				^color-left <value>
+				^color-sensor-value <value>)
+-->
+	(<s> ^operator <o> +)
+	(<o> ^name move-left)
+}
+
+sp {Stage2*apply*move-left
+	(state <s>	^operator.name move-left
+				^superstate.io.output-link <out>
+				^left-motor-port <left-port>
+				^right-motor-port <right-port>)
+-->
+	(<out>	^motor <left>
+			^motor <right>)
+	(<left>	^port <left-port>
+			^start <left-start>)
+	(<right>	^port <right-port>
+				^start <right-start>)
+	(<left-start>	^direction forward
+					^power 40)
+	(<right-start>	^direction backward
+					^power 40)
+}
+
+###################################################
+#	move-right operator
+###################################################
+
+# This move-right operator is the same as the
+# move-forward operator except for three changes.
+# 1) The operator has been renamed to move-right
+# 2) The color-forward test in the proposal has been
+#    changed to color-right
+# 3) The direction for the right motor has been changed
+#    to forward instead of backward.
+sp {Stage2*propose*move-right
+	(state <s>	^name Follow-Line-Substate
+				^color-right <value>
+				^color-sensor-value <value>)
+-->
+	(<s> ^operator <o> +)
+	(<o> ^name move-right)
+}
+
+sp {Stage2*apply*move-right
+	(state <s>	^operator.name move-right
+				^superstate.io.output-link <out>
+				^left-motor-port <left-port>
+				^right-motor-port <right-port>)
+-->
+	(<out>	^motor <left>
+			^motor <right>)
+	(<left>	^port <left-port>
+			^start <left-start>)
+	(<right>	^port <right-port>
+				^start <right-start>)
+	(<left-start>	^direction backward
+					^power 40)
+	(<right-start>	^direction forward
+					^power 40)
+}

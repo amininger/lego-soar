@@ -1,0 +1,29 @@
+
+###################################################
+#	Wait operator
+#
+#	This operator works by proposing its self and
+#	also testing in the proposal for the absence of
+#	a selected operator called wait.  This means
+#	that if the operator is selected, it will
+#	immediately retract its self and will not cause
+#	an operator no-change as WM changed to cause
+#	the operator to retract.  This wait operator
+#	will also only fire in state no-changes which
+#	happen when there is nothing going on in the
+#	agent because it is moving and waiting for a
+#	change in the environment to continue.
+###################################################
+
+sp {Common-Include*Wait*propose*wait
+	(state <s>	^attribute state
+				^impasse no-change
+				-^operator.name wait)
+-->
+	(<s>	^operator <o> + < =)	# Propose the
+									# operator with
+									# worst and
+									# indifferent
+									# preferences.
+	(<o>	^name wait)
+}

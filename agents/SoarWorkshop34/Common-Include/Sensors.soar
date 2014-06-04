@@ -1,0 +1,58 @@
+
+# Elaborates the color sensor value onto the top state
+sp {Common-Include*Sensors*elaborate*color-sensor
+   (state <s>	^name Line-Follower
+				^io.input-link.sensor <color>)
+   (<color>	^type color
+			^value <color-value>)
+-->
+   (<s>	^color-sensor-value <color-value>)
+}
+
+# If this is the follow-line substate, elaborate the
+# color sensor value from the top state to this substate
+sp {Common-Include*Sensors*elaborate*color-sensor*substate
+   (state <s>	^name Follow-Line-Substate
+				^superstate.color-sensor-value <value>)
+-->
+   (<s>	^color-sensor-value <value>)
+}
+
+###################################################
+#	change-color-mode operator
+#
+#	If the color sensor is not in "color" mode,
+#	this will be proposed and selected.  When it
+#	applies it will put on the output link the
+#	command to set the mode to "color"
+###################################################
+
+# Proposal Rule
+sp {Common-Include*Sensors*propose*change-color-mode
+   (state <s>	^name Line-Follower
+				^io.input-link.sensor <color>)
+   (<color>	^type color
+			^port <port>
+			^mode <> color)
+-->
+   (<s>	^operator <o> + >)	# We should always do this
+							# as this is a critical
+							# operator to the program
+							# working as we intend.
+   (<o>	^name change-color-mode
+		^port <port>)
+}
+
+# Apply rule
+# Create the command on the output link
+sp {Common-Include*Sensors*apply*change-color-mode
+   (state <s> ^name Line-Follower
+              ^operator <o>
+              ^io.output-link <out>)
+   (<o> ^name change-color-mode
+        ^port <port>)
+-->
+   (<out> ^sensor <sensor>)
+   (<sensor> ^port <port>
+             ^set.mode color)
+}
