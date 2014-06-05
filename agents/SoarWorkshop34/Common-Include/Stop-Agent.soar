@@ -12,7 +12,7 @@
 
 # Proposal Rule
 sp {Common-Include*Stop-Agent*propose*handle-button-press
-	(state <s>	^name Line-Follower
+	(state <s>	^name line-follower
 				^io.input-link.brick.buttons.button <button>
 				^mode <cur-mode>)
 	(<button>	^prev-state released
@@ -28,7 +28,7 @@ sp {Common-Include*Stop-Agent*propose*handle-button-press
 
 # If we were just following, then the button press is to stop
 sp {Common-Include*Stop-Agent*apply*handle-button-press*toggle*mode*wait
-	(state <s>	^name Line-Follower
+	(state <s>	^name line-follower
 				^operator <o>
 				^mode follow)
 	(<o>	^name handle-button-press
@@ -41,7 +41,7 @@ sp {Common-Include*Stop-Agent*apply*handle-button-press*toggle*mode*wait
 
 # If we were just waiting, then the button press is to start following
 sp {Common-Include*Stop-Agent*apply*handle-button-press*toggle*mode*explore
-	(state <s>	^name Line-Follower
+	(state <s>	^name line-follower
 				^operator <o>
 				^mode wait)
 	(<o>	^name handle-button-press
@@ -62,7 +62,7 @@ sp {Common-Include*Stop-Agent*apply*handle-button-press*toggle*mode*explore
 
 # Proposal Rule
 sp {Common-Include*Stop-Agent*propose*stop
-	(state <s>	^name Line-Follower
+	(state <s>	^name line-follower
 				^stop-agent YES)
 -->
 	(<s>	^operator <o> + >)
@@ -80,12 +80,12 @@ sp {Common-Include*Stop-Agent*propose*stop
 # motor ports.
 
 sp {Common-Include*Stop-Agent*apply*stop
-	(state <s>	^name Line-Follower
+	(state <s>	^name line-follower
 				^operator.name stop
-				^stop-agent true
+				^stop-agent YES
 				^io.output-link <out>)
 -->
-	(<s> ^stop-agent true -)
+	(<s> ^stop-agent YES -)
 	(<out>	^motor <1>
 			^motor <2>
 			^motor <3>

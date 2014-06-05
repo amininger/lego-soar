@@ -21,7 +21,7 @@ source ../Common-Include.soar
 ###################################################
 
 sp {Stage2*propose*follow-line
-	(state <s>	^name Line-Follower
+	(state <s>	^name line-follower
 				^mode follow
 				^left-motor-port <lmp>
 				^right-motor-port <rmp>
@@ -42,21 +42,23 @@ sp {Stage2*propose*follow-line*init-substate
 				^attribute operator
 				^impasse no-change
 				^superstate <ss>)
-	(<ss>	^name Line-Follower
-			^left-motor-port <lmp>
-			^right-motor-port <rmp>
-			^color-left <cl>
-			^color-right <cr>
-			^color-forward <cf>)
+	(<ss>	^name line-follower)
 -->
 	(<s>	^operator <o> +)
 	(<o>	^name follow-line*init-substate)
 }
 
 sp {Stage2*apply*follow-line*init-substate
-	(state <s>	^operator.name follow-line*init-substate
+	(state <s>	^operator.name follow-line*init-substate)
+-->
+	(<s>	^name follow-line)
+}
+
+sp {Stage2*elaboration*copy-substate-structures
+	(state <s>	^name follow-line
 				^superstate <ss>)
-	(<ss>	^left-motor-port <lmp>
+	(<ss>	^name line-follower
+			^left-motor-port <lmp>
 			^right-motor-port <rmp>
 			^color-left <cl>
 			^color-right <cr>
@@ -66,16 +68,15 @@ sp {Stage2*apply*follow-line*init-substate
 			^right-motor-port <rmp>
 			^color-left <cl>
 			^color-right <cr>
-			^color-forward <cf>
-			^name Follow-Line-Substate)
+			^color-forward <cf>)
 }
 
 # There are a couple changes to these operators
 # between Stage 1 and Stage 2
 #
 # 1) The state in which they execute in is the
-#    "Follow-Line-Substate" instead of the
-#    "Line-Follower" substate
+#    "follow-line" substate instead of the
+#    "line-follower" substate
 # 2) The operator proposals no longer test for the
 #    ^mode follow attribute as the entire substate
 #    will only exist if the mode is follow.
@@ -91,7 +92,7 @@ sp {Stage2*apply*follow-line*init-substate
 # detected color sensor value is the forward value
 # and our mode is "follow"
 sp {Stage2*propose*move-forward
-	(state <s>	^name Follow-Line-Substate
+	(state <s>	^name follow-line
 				^color-forward <value>
 				^color-sensor-value <value>)
 -->
@@ -146,7 +147,7 @@ sp {Stage2*apply*move-forward
 # 3) The direction for the left motor has been changed
 #    to forward instead of backward.
 sp {Stage2*propose*move-left
-	(state <s>	^name Follow-Line-Substate
+	(state <s>	^name follow-line
 				^color-left <value>
 				^color-sensor-value <value>)
 -->
@@ -184,7 +185,7 @@ sp {Stage2*apply*move-left
 # 3) The direction for the right motor has been changed
 #    to forward instead of backward.
 sp {Stage2*propose*move-right
-	(state <s>	^name Follow-Line-Substate
+	(state <s>	^name follow-line
 				^color-right <value>
 				^color-sensor-value <value>)
 -->

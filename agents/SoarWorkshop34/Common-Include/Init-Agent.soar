@@ -21,7 +21,7 @@ sp {Common-Include*Init-Agent*apply*init-agent
    (state <s> ^operator.name init-agent)
 -->
    (<s> ^explorer <s>
-        ^name Line-Follower
+        ^name line-follower
 		^mode follow
 		^left-motor-port 2 # Port B
 		^right-motor-port 3 # Port C

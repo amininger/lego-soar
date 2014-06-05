@@ -1,7 +1,7 @@
 
 # Removes output-link commands when a status is put on them
 sp {Common-Include*Output-Link*remove*completed*actions*d1
-   (state <s> ^name Line-Follower
+   (state <s> ^name line-follower
               ^operator <op>
               ^io.output-link <out>)
    (<out> ^<att> <cmd>)
@@ -12,7 +12,7 @@ sp {Common-Include*Output-Link*remove*completed*actions*d1
 
 # If there was an error, print it
 sp {Common-Include*Output-Link*print*command*error
-   (state <s> ^name Line-Follower
+   (state <s> ^name line-follower
               ^io.output-link.<name> <cmd>)
    (<cmd> ^error <error>)
 -->

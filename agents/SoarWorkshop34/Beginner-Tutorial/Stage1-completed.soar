@@ -26,7 +26,7 @@ source ../Common-Include.soar
 # detected color sensor value is the forward value
 # and our mode is "follow"
 sp {Stage1*propose*move-forward
-	(state <s>	^name Line-Follower
+	(state <s>	^name line-follower
 				^mode follow
 				^color-forward <value>
 				^color-sensor-value <value>)
@@ -82,7 +82,7 @@ sp {Stage1*apply*move-forward
 # 3) The direction for the left motor has been changed
 #    to forward instead of backward.
 sp {Stage1*propose*move-left
-	(state <s>	^name Line-Follower
+	(state <s>	^name line-follower
 				^mode follow
 				^color-left <value>
 				^color-sensor-value <value>)
@@ -121,7 +121,7 @@ sp {Stage1*apply*move-left
 # 3) The direction for the right motor has been changed
 #    to forward instead of backward.
 sp {Stage1*propose*move-right
-	(state <s>	^name Line-Follower
+	(state <s>	^name line-follower
 				^mode follow
 				^color-right <value>
 				^color-sensor-value <value>)

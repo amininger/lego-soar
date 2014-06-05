@@ -33,7 +33,8 @@
 # Propose to swap colors when we have a color value
 # of red (value: 5).
 sp {Stage3*propose*swap-colors
-	(state <s>	^name Line-Follower
+	(state <s>	^name line-follower
+				^mode follow
 				^color-left <cl>
 				^color-right <cr>
 				^color-sensor-value 5
@@ -65,7 +66,7 @@ sp {Stage3*apply*swap-colors
 # After we have swapped the colors, propose to
 # rotate 180 degrees
 sp {Stage3*propose*move-180
-	(state <s>	^name Follow-Line-Substate
+	(state <s>	^name follow-line
 				^superstate <ss>)
 	(<ss>	^did-swap YES
 			^io.input-link <il>
@@ -84,6 +85,7 @@ sp {Stage3*preference*move-180*better-than-other-movements
 	(state <s>	^operator <o1> +
 				^operator <o2> +)
 	(<o1>	^name move-180)
+	(<o2>	^name <> move-180)
 -->
 	(<s>	^operator <o1> > <o2>)
 }
@@ -97,7 +99,9 @@ sp {Stage3*apply*move-180*track-motors
 				^superstate <ss>)
 	(<ss>	^io.input-link <il>
 			^left-motor-port <lmp>
-			^right-motor-port <rmp>)
+			^right-motor-port <rmp>
+			-^left-motor-sensor-value
+			-^right-motor-sensor-value)
 	(<il>	^motor <left-motor>
 			^motor <right-motor>)
 	(<left-motor>	^port <lmp>
@@ -105,8 +109,8 @@ sp {Stage3*apply*move-180*track-motors
 	(<right-motor>	^port <rmp>
 					^sensor <right-value>)
 -->
-	(<ss>	^left-motor-sensor-value <left-value>
-			^right-motor-sensor-value <right-value>)
+	(<ss>	^left-motor-sensor-value (+ <left-value> 1000)
+			^right-motor-sensor-value (+ <right-value> 1000))
 }
 
 # Start the rotation.  Arbitrarily chose to start by
@@ -131,26 +135,13 @@ sp {Stage3*apply*move-180*start-movement
 					^power 40)
 }
 
-# An elaboration which will fire to add 1000 to the
-# values we get back from the motors.  This will be
-# the value we must exceed to know we have rotated
-# 180 degrees.
-sp {Stage3*elaboration*move-180*add-1000
-	(state <s>	^name Line-Follower
-				^left-motor-sensor-value <left-value>
-				^right-motor-sensor-value <right-value>)
--->
-	(<s>	^left-motor-sensor-value-1000 (+ <left-value> 1000)
-			^right-motor-sensor-value-1000 (- <right-value> 1000))
-}
-
 # An elaboration to create a flag on the state when
 # we are done rotating
 sp {Stage3*elaboration*move-180*has-finished
-	(state <s>	^name Line-Follower
+	(state <s>	^name line-follower
 				^io.input-link <il>
-				^left-motor-sensor-value-1000 <left-value>
-				^right-motor-sensor-value-1000 <right-value>
+				^left-motor-sensor-value <left-value>
+				^right-motor-sensor-value <right-value>
 				^left-motor-port <lmp>
 				^right-motor-port <rmp>)
 	(<il>	^motor <left-motor>
@@ -173,7 +164,7 @@ sp {Stage3*elaboration*move-180*has-finished
 # move-forward operator we wrote earlier in Stage 1
 # and 2.
 sp {Stage3*propose*move-forward-until-done-swapping
-	(state <s>	^name Follow-Line-Substate
+	(state <s>	^name follow-line
 				^superstate.has-rotated-180 YES
 				^color-forward <value>
 				^color-sensor-value 5)
