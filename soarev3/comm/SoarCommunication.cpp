@@ -22,10 +22,16 @@ using namespace std;
 using namespace sml;
 
 // SoarLcmCommunicator
-SoarLcmCommunicator::SoarLcmCommunicator()
+SoarLcmCommunicator::SoarLcmCommunicator(const char* channel)
 : soarManager(0), nextAck(1){
+	// Channel to publish to
+	snprintf(outChannel, 8, "S2L%s", channel);
+
+	// Channel to listen to
+	snprintf(inChannel, 8, "L2S%s", channel);
+
 	wrapper.init();
-	wrapper.subscribe("EVTOSOAR", lcmHandler, this);
+	wrapper.subscribe(inChannel, lcmHandler, this);
 
 	pthread_mutex_init(&mutex, 0);
 }
@@ -132,7 +138,7 @@ void SoarLcmCommunicator::sendCommandMessage(){
 	uchar* outBuffer;
 	uint buf_size;
 	packBuffer(buffer, outBuffer, buf_size);
-	wrapper.publish("SOARTOEV", (void*)outBuffer, buf_size);
+	wrapper.publish(outChannel, (void*)outBuffer, buf_size);
 
 	delete [] outBuffer;
 	//cout << "<-- Soar Send Command" << endl;

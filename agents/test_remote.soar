@@ -94,7 +94,7 @@ sp {topstate*propose*change-remote-mode
    (state <s> ^name ev3-agent
               ^remote-sensor <remote>)
    (<remote> ^port <port>
-             ^mode <> remote)
+             ^mode <> beacon)
 -->
    (<s> ^operator <o> + > =)
    (<o> ^name change-remote-mode
@@ -119,14 +119,14 @@ sp {topstate*apply*change-remote-mode
 -->
    (<out> ^sensor <sensor>)
    (<sensor> ^port <port>
-             ^set.mode remote)
+             ^set.mode beacon)
 }
 
 sp {topstate*propose*change-color-mode
    (state <s> ^name ev3-agent
               ^color-sensor <color>)
    (<color> ^port <port>
-             ^mode <> color)
+             ^mode <> reflect)
 -->
    (<s> ^operator <o> + > =)
    (<o> ^name change-color-mode
@@ -142,7 +142,7 @@ sp {topstate*apply*change-color-mode
 -->
    (<out> ^sensor <sensor>)
    (<sensor> ^port <port>
-             ^set.mode color)
+             ^set.mode reflect)
 }
 
 # Button pressed

@@ -12,6 +12,7 @@
 #include "LcmUtil.h"
 
 #include <iostream>
+#include <sstream>
 using namespace std;
 
 
@@ -31,10 +32,16 @@ void Ev3Communicator::start(){
 
 
 // Ev3LcmCommunicator
-Ev3LcmCommunicator::Ev3LcmCommunicator()
+Ev3LcmCommunicator::Ev3LcmCommunicator(const char* channel)
 : ev3Manager(0){
+	// Channel to publish to
+	snprintf(outChannel, 8, "L2S%s", channel);
+
+	// Channel to listen to
+	snprintf(inChannel, 8, "S2L%s", channel);
+
 	wrapper.init();
-	wrapper.subscribe("SOARTOEV", lcmHandler, (void*)this);
+	wrapper.subscribe(inChannel, lcmHandler, (void*)this);
 
 	pthread_mutex_init(&mutex, 0);
 }
@@ -113,7 +120,7 @@ void Ev3LcmCommunicator::sendStatusMessage(){
 	uint buf_size;
 	packBuffer(buffer, outBuffer, buf_size);
 
-	wrapper.publish("EVTOSOAR", (void*)outBuffer, buf_size);
+	wrapper.publish(outChannel, (void*)outBuffer, buf_size);
 	delete [] outBuffer;
 	//cout << "<-- Ev3 Send Status" << endl;
 	pthread_mutex_unlock(&mutex);
@@ -149,7 +156,7 @@ void Ev3LcmCommunicator::sendAckMessage(){
 	uint buf_size;
 	packBuffer(buffer, outBuffer, buf_size);
 
-	wrapper.publish("EVTOSOAR", (void*)outBuffer, buf_size);
+	wrapper.publish(outChannel, (void*)outBuffer, buf_size);
 	delete [] outBuffer;
 
 	//cout << "<-- Ev3 Send Ack" << endl;

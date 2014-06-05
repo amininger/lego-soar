@@ -8,6 +8,8 @@
 #ifndef SOARCOMMUNICATION_H_
 #define SOARCOMMUNICATION_H_
 
+#include <string>
+
 class SoarManager;
 
 #include "sml_Client.h"
@@ -29,7 +31,7 @@ public:
 
 class SoarLcmCommunicator : public SoarCommunicator{
 public:
-	SoarLcmCommunicator();
+	SoarLcmCommunicator(const char* channel);
 
 	virtual ~SoarLcmCommunicator(){
 		pthread_mutex_destroy(&mutex);
@@ -73,6 +75,8 @@ private:
 	IdentifierMap waitingIdentifiers;
 	IdentifierSet finishedIdentifiers;
 
+	char inChannel[8];
+	char outChannel[8];
 };
 
 

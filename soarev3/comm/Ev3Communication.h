@@ -15,6 +15,8 @@ class Ev3Manager;
 #include "sml_Client.h"
 #include <pthread.h>
 
+#include <string>
+
 class Ev3Communicator{
 public:
 	virtual ~Ev3Communicator(){}
@@ -32,7 +34,7 @@ protected:
 
 class Ev3LcmCommunicator : public Ev3Communicator{
 public:
-	Ev3LcmCommunicator();
+	Ev3LcmCommunicator(const char* channel);
 
 
 	virtual ~Ev3LcmCommunicator(){
@@ -70,6 +72,8 @@ private:
 
 	Ev3Manager* ev3Manager;
 
+	char inChannel[8];
+	char outChannel[8];
 };
 
 #endif /* EV3COMMUNICATION_H_ */

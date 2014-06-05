@@ -9,13 +9,14 @@ using namespace std;
 
 
 int main(int argc, char** argv){
-	if(argc < 2){
-		cout << "Needs agent source file" << endl;
+	if(argc < 3){
+		cout << "Param 1: Channel (1-999)" << endl;
+		cout << "Param 2: filepath for agent source file" << endl;
 		return 0;
 	}
 
-	SoarLcmCommunicator comm;
-	SoarManager manager(&comm, argv[1], true);
+	SoarLcmCommunicator comm(argv[1]);
+	SoarManager manager(&comm, argv[2], true);
 	comm.assignManager(&manager);
 	comm.start();
 
