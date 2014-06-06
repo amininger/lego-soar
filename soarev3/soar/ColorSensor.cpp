@@ -18,8 +18,16 @@
 using namespace std;
 
 ColorSensor::ColorSensor(uint port, SoarCommunicator* comm)
-: comm(comm), port(port), mode(""), value(0), rootId(0) {
-
+: comm(comm), port(port), mode(""), value(0), rootId(0), soarMode("")
+{
+	colorMap[0] = "none";
+	colorMap[1] = "black";
+	colorMap[2] = "blue";
+	colorMap[3] = "green";
+	colorMap[4] = "yellow";
+	colorMap[5] = "red";
+	colorMap[6] = "white";
+	colorMap[7] = "brown";
 }
 
 ColorSensor::~ColorSensor(){
@@ -35,31 +43,49 @@ void ColorSensor::updateInputLink(sml::Identifier* inputLink){
 		rootId->CreateStringWME("type", "color");
 		rootId->CreateIntWME("port", port);
 	}
+	
 	WMUtil::updateStringWME(rootId, "mode", mode);
-	WMUtil::updateIntWME(rootId, "value", value);
+
+	if(mode != soarMode){
+		changeSoarMode(mode);
+	}
+	if(mode == "reflect" || mode == "ambient"){
+		WMUtil::updateIntWME(rootId, "brightness", value);
+	} else if(mode == "color"){
+		string color = "none";
+		map<short, string>::iterator cIt = colorMap.find(value);
+		if(cIt != colorMap.end()){
+			color = cIt->second;
+		}
+		WMUtil::updateStringWME(rootId, "value", color);
+	}
+}
+
+void ColorSensor::changeSoarMode(string newMode){
+	if(rootId == 0){
+		return;
+	}
+	// Remove the old
+	if(soarMode == "reflect" || soarMode == "ambient"){
+		WMUtil::removeWME(rootId, "brightness");
+	} else if(soarMode == "color"){
+		WMUtil::removeWME(rootId, "color");
+	}
+
+	// Add the new
+	if(newMode == "reflect" || newMode == "ambient"){
+		rootId->CreateIntWME("brightness", 0);
+	} else if(newMode == "color"){
+		rootId->CreateStringWME("value", "none");
+	}
+
+	soarMode = newMode;
 }
 
 bool ColorSensor::readSoarCommand(sml::Identifier* commandId){
-	Ev3Command command;
-	command.dev = INPUT_MAN_DEV;
-
-	Identifier* subId;
-	if(WMUtil::getValue(commandId, "set", subId)){
-		if(!readSetCommand(subId, command.params)){
-			return false;
-		}
-	} else {
-		cout << "UNKNOWN COLOR SENSOR COMMAND" << endl;
-		return false;
-	}
-	comm->sendCommandToEv3(command, commandId);
-	return true;
-}
-
-bool ColorSensor::readSetCommand(sml::Identifier* commandId, IntBuffer& params){
 	string newMode;
-	uchar modeId;
-	if(WMUtil::getValue(commandId, "mode", newMode)){
+	if(WMUtil::getValue(commandId, "set-mode", newMode)){
+		uchar modeId;
 		if(newMode == "reflect"){
 			modeId = COLOR_SENSOR_MODE_REFLECT;
 		} else if(newMode == "ambient"){
@@ -70,10 +96,17 @@ bool ColorSensor::readSetCommand(sml::Identifier* commandId, IntBuffer& params){
 			cout << "UNKNOWN COLOR SENSOR MODE: " << newMode << endl;
 			return false;
 		}
+
+		Ev3Command command;
+		command.dev = INPUT_MAN_DEV;
+		command.params.push_back(CHANGE_MODE_COMMAND);
+		command.params.push_back(packBytes(port-1, modeId, EV3_COLOR_SENSOR_TYPE, 0));
+		comm->sendCommandToEv3(command, commandId);
+		return true;
 	}
-	params.push_back(CHANGE_MODE_COMMAND);
-	params.push_back(packBytes(port-1, modeId, EV3_COLOR_SENSOR_TYPE, 0));
-	return true;
+
+	cout << "INVALID COLOR SENSOR COMMAND" << endl;
+	return false;
 }
 
 void ColorSensor::readStatus(IntBuffer& buffer, uint& offset){

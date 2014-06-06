@@ -20,13 +20,12 @@
 void BrickButton::updateInputLink(Identifier* parentId){
 	if(id == 0){
 		// Initialize
-		id = parentId->CreateIdWME("button");
-		string nameStr = "name";
-		WMUtil::updateStringWME(id, nameStr, name);
+		id = parentId->CreateIdWME(name.c_str());
+		id->CreateStringWME("type", "button");
 	}
 	// Update
-	WMUtil::updateStringWME(id, "cur-state", (curState ? "pressed" : "released"));
-	WMUtil::updateStringWME(id, "prev-state", (prevState ? "pressed" : "released"));
+	WMUtil::updateStringWME(id, "current-state", (curState ? "pressed" : "released"));
+	WMUtil::updateStringWME(id, "previous-state", (prevState ? "pressed" : "released"));
 	prevState = curState;
 }
 
@@ -39,14 +38,13 @@ void BrickButton::updateInputLink(Identifier* parentId){
 
 Brick::Brick(SoarCommunicator* comm):comm(comm){
 	brickId = 0;
-	buttonsId = 0;
 
-	buttons.push_back(new BrickButton("up", BUTTON_ID_UP));
-	buttons.push_back(new BrickButton("down", BUTTON_ID_DOWN));
-	buttons.push_back(new BrickButton("left", BUTTON_ID_LEFT));
-	buttons.push_back(new BrickButton("right", BUTTON_ID_RIGHT));
-	buttons.push_back(new BrickButton("enter", BUTTON_ID_ENTER));
-	buttons.push_back(new BrickButton("escape", BUTTON_ID_ESCAPE));
+	buttons.push_back(new BrickButton("up-button", BUTTON_ID_UP));
+	buttons.push_back(new BrickButton("down-button", BUTTON_ID_DOWN));
+	buttons.push_back(new BrickButton("left-button", BUTTON_ID_LEFT));
+	buttons.push_back(new BrickButton("right-button", BUTTON_ID_RIGHT));
+	buttons.push_back(new BrickButton("enter-button", BUTTON_ID_ENTER));
+	buttons.push_back(new BrickButton("escape-button", BUTTON_ID_ESCAPE));
 
 	// INITIALIZE LEDS
 	leds["off"] = LED_BLACK;
@@ -70,20 +68,14 @@ Brick::~Brick(){
 		brickId->DestroyWME();
 		brickId = 0;
 	}
-
-	if(buttonsId){
-		buttonsId->DestroyWME();
-		buttonsId = 0;
-	}
 }
 
 void Brick::updateInputLink(Identifier* inputLink){
 	if(brickId == 0){
 		brickId = inputLink->CreateIdWME("brick");
-		buttonsId = brickId->CreateIdWME("buttons");
 	}
 	for(ButtonVectorIt i = buttons.begin(); i != buttons.end(); i++){
-		(*i)->updateInputLink(buttonsId);
+		(*i)->updateInputLink(brickId);
 	}
 }
 
@@ -95,33 +87,23 @@ void Brick::readStatus(IntBuffer& buffer, uint& offset){
 }
 
 bool Brick::readSoarCommand(Identifier* commandId){
-	Ev3Command command;
-	command.dev = BRICK_DEV;
-
-	Identifier* subId;
-	if(WMUtil::getValue(commandId, "set", subId)){
-		if(!handleSetCommand(command.params, subId)){
+	string ledPattern;
+	if(WMUtil::getValue(commandId, "set-led-pattern", ledPattern)){
+		LedMapIt ledState = leds.find(ledPattern);
+		if(ledState != leds.end()){
+			Ev3Command command;
+			command.dev = BRICK_DEV;
+			command.params.push_back(BRICK_COMMAND_SET_LED);
+			command.params.push_back(ledState->second);
+			comm->sendCommandToEv3(command, commandId);
+			return true;
+		} else {
+			cout << "UNKNOWN BRICK LED PATTERN: " << ledPattern << endl;
 			return false;
 		}
-	} else {
-		return false;
 	}
 
-	comm->sendCommandToEv3(command, commandId);
-	return true;
-}
-
-bool Brick::handleSetCommand(IntBuffer& buffer, Identifier* commandId){
-	string state;
-	if(WMUtil::getValue(commandId, "led", state)){
-		LedMapIt ledState = leds.find(state);
-		if(ledState != leds.end()){
-			buffer.push_back(BRICK_COMMAND_SET_LED);
-			buffer.push_back(ledState->second);
-			return true;
-		}
-	}
+	cout << "INVALID BRICK COMMAND" << endl;
 	return false;
 }
-
 

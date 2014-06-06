@@ -44,7 +44,7 @@ SoarManager::SoarManager(SoarCommunicator* comm, std::string agentSource, bool d
 
 	// Motors
 	for(int i = 0; i < NUM_OUTPUTS; i++){
-		motors[i] = new Motor(i+1, comm);
+		motors[i] = new Motor(i, comm);
 	}
 	agent->AddOutputHandler("motor", SoarManager::outputEventHandler, (void*)this);
 
@@ -200,10 +200,11 @@ void SoarManager::handleOutput(string attName, WMElement* wme){
 	if(att == "brick"){
 		dev = brick;
 	} else if(att == "motor"){
-		int port;
+		string port;
 		if(WMUtil::getValue(id, "port", port)){
-			if(port >= 1 && port <= 4){
-				dev = motors[port-1];
+			int portNum = port[0] - 'A';
+			if(portNum >= 0 && portNum <= 4){
+				dev = motors[portNum];
 			}
 		}
 	} else if(att == "sensor"){

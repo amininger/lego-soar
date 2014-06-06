@@ -16,6 +16,7 @@
 #include "sml_Client.h"
 
 #include <string>
+#include <map>
 
 class ColorSensor : public SoarDevice{
 public:
@@ -31,13 +32,18 @@ public:
 	}
 
 private:
+	void changeSoarMode(std::string newMode);
+
 	SoarCommunicator* comm;
 
 	uint port;
 	std::string mode;
+	std::string soarMode;
 	short value;
 
 	sml::Identifier* rootId;
+
+	std::map<short, string> colorMap;
 };
 
 #endif /* SOARCOLORSENSOR_H_ */

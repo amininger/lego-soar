@@ -22,17 +22,35 @@ using namespace std;
  * RemoteButton Method Definitions
  *
  ****************************************************/
+RemoteButton::RemoteButton(ushort buttonType)
+:buttonType(buttonType), id(0), curState(false), prevState(false){
+	if(buttonType == 0){
+		name = "red-up-button";
+	} else if(buttonType == 1){
+		name = "red-down-button";
+	} else if(buttonType == 2){
+		name = "blue-up-button";
+	} else {
+		name = "blue-down-button";
+	}
+}
+
+RemoteButton::~RemoteButton(){
+	if(id){
+		id->DestroyWME();
+		id = 0;
+	}
+}
 
 void RemoteButton::updateInputLink(Identifier* parentId){
 	if(id == 0){
 		// Initialize
-		id = parentId->CreateIdWME("button");
-		string nameStr = "name";
-		WMUtil::updateStringWME(id, nameStr, name);
+		id = parentId->CreateIdWME(name.c_str());
+		id->CreateStringWME("type", "button");
 	}
 	// Update
-	WMUtil::updateStringWME(id, "cur-state", (curState ? "pressed" : "released"));
-	WMUtil::updateStringWME(id, "prev-state", (prevState ? "pressed" : "released"));
+	WMUtil::updateStringWME(id, "current-state", (curState ? "pressed" : "released"));
+	WMUtil::updateStringWME(id, "previous-state", (prevState ? "pressed" : "released"));
 	prevState = curState;
 }
 
@@ -147,40 +165,22 @@ void IRRemote::changeSoarMode(uchar newMode){
 
 
 bool IRRemote::readSoarCommand(sml::Identifier* commandId){
-	Ev3Command command;
-	command.dev = INPUT_MAN_DEV;
+	bool validCommand = false;
 
-	Identifier* subId;
-	if(WMUtil::getValue(commandId, "set", subId)){
-		if(!readSetCommand(subId, command.params)){
-			return false;
-		}
-	} else {
-		cerr << "UNKNOWN IR REMOTE SENSOR COMMAND" << endl;
-		return false;
-	}
-	if(command.params.size() > 0){
-		comm->sendCommandToEv3(command, commandId);
-	}
-	return true;
-}
-
-bool IRRemote::readSetCommand(sml::Identifier* commandId, IntBuffer& params){
-	// Set channel
+	// set-channel
 	int newChannel;
-	if(WMUtil::getValue(commandId, "channel", newChannel)){
-		cout << "SETTING CHANNEL TO : " << newChannel << endl;
-		if(newChannel < 1 || newChannel > NUM_IR_CHANNELS){
-			cerr << "INVALID IR REMOTE CHANNEL: " << newChannel << endl;
+	if(WMUtil::getValue(commandId, "set-channel", newChannel)){
+		if(newChannel < 1 || newChannel > 4){
+			cout << "IR-REMOTE INVALID CHANNEL " << newChannel << endl;
 			return false;
 		}
-		channel = newChannel-1;
+		channel = newChannel - 1;
+		validCommand = true;
 	}
 
-	// Set mode
+	// set-mode
 	string newMode;
-	if(WMUtil::getValue(commandId, "mode", newMode)){
-		cout << "SETTING MODE TO: " << newMode << endl;
+	if(WMUtil::getValue(commandId, "set-mode", newMode)){
 		if(newMode == "proximity"){
 			mode = EV3_IR_REMOTE_PROXIMITY_MODE;
 		} else if(newMode == "beacon"){
@@ -188,14 +188,23 @@ bool IRRemote::readSetCommand(sml::Identifier* commandId, IntBuffer& params){
 		} else if(newMode == "remote"){
 			mode = EV3_IR_REMOTE_REMOTE_MODE;
 		} else {
-			cerr << "UNKNOWN IR REMOTE SENSOR MODE: " << newMode << endl;
+			cout << "IR-REMOTE UNKNOWN MODE: " << newMode << endl;
 			return false;
 		}
-		params.push_back(CHANGE_MODE_COMMAND);
-		params.push_back(packBytes(port-1, mode, EV3_IR_REMOTE_SENSOR_TYPE, 0));
-		return true;
+		validCommand = true;
+		Ev3Command command;
+		command.dev = INPUT_MAN_DEV;
+		command.params.push_back(CHANGE_MODE_COMMAND);
+		command.params.push_back(packBytes(port-1, mode, EV3_IR_REMOTE_SENSOR_TYPE, 0));
+		comm->sendCommandToEv3(command, commandId);
+	} else if(validCommand){
+		commandId->CreateStringWME("status", "complete");
 	}
-	return true;
+
+	if(!validCommand){
+		cout << "IR-REMOTE INVALID COMMAND" << endl;
+	}
+	return validCommand;
 }
 
 void IRRemote::readStatus(IntBuffer& buffer, uint& offset){

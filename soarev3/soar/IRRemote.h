@@ -25,25 +25,9 @@
 
 class RemoteButton{
 public:
-	RemoteButton(ushort buttonType)
-	:buttonType(buttonType), id(0), curState(false), prevState(false){
-		if(buttonType == 0){
-			name = "red-up";
-		} else if(buttonType == 1){
-			name = "red-down";
-		} else if(buttonType == 2){
-			name = "blue-up";
-		} else {
-			name = "blue-down";
-		}
-	}
+	RemoteButton(ushort buttonType);
 
-	~RemoteButton(){
-		if(id){
-			id->DestroyWME();
-			id = 0;
-		}
-	}
+	~RemoteButton();
 
 	void setState(int stateCode);
 
@@ -79,7 +63,6 @@ public:
 	void readStatus(IntBuffer& buffer, uint& offset);
 
 	bool readSoarCommand(sml::Identifier* commandId);
-	bool readSetCommand(sml::Identifier* commandId, IntBuffer& params);
 
 	uint getDeviceType(){
 		return EV3_IR_REMOTE_SENSOR_TYPE;

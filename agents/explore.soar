@@ -13,8 +13,8 @@ sp {explorer*apply*init-agent
    (<s> ^explorer <s>
         ^name explorer
 				^mode explore
-				^left-motor.port 2
-				^right-motor.port 3)
+				^left-motor.port A
+				^right-motor.port B)
 }
 
 # Will apply the wait operator when there's nothing else to do
@@ -82,16 +82,16 @@ sp {explorer*apply*change-remote-mode
 -->
    (<out> ^sensor <sensor>)
    (<sensor> ^port <port>
-             ^set.mode remote)
+             ^set-mode proximity)
 }
 
 # When a button is pressed, this catches the event
 sp {explorer*propose*handle-button-press
    (state <s> ^name explorer 
-							 ^io.input-link.brick.buttons.button <button>
+							 ^io.input-link.brick.<btn-name> <button>
 							 ^mode <cur-mode>)
-   (<button> ^prev-state released
-             ^cur-state pressed)
+   (<button> ^previous-state released
+             ^current-state pressed)
 -->
 	(<s> ^operator <o> + = >)
    (<o> ^name handle-button-press
@@ -102,24 +102,28 @@ sp {explorer*propose*handle-button-press
 sp {explorer*apply*handle-button-press*toggle*mode*wait
 	(state <s> ^name explorer
 						 ^operator <o>
-						 ^mode explore)
+						 ^mode explore
+						 ^io.output-link <out>)
 	(<o> ^name handle-button-press
 	     ^mode explore)
 -->
 	(<s> ^mode explore -
 			 ^mode wait
 			 ^stop-agent true)
+	(<out> ^brick.set-led-pattern off)
 }
 
 sp {explorer*apply*handle-button-press*toggle*mode*explore
 	(state <s> ^name explorer
 						 ^operator
-						 ^mode wait)
+						 ^mode wait
+						 ^io.output-link <out>)
 	(<o> ^name handle-button-press
 	     ^mode wait)
 -->
 	(<s> ^mode wait -
 			 ^mode explore)
+	(<out> ^brick.set-led-pattern solid-green)
 }
 
 # Stop the robot when a button is pressed
@@ -142,14 +146,14 @@ sp {explorer*apply*stop
 # Movement commands
 sp {explorer*elaborate*obstacle*false
 	(state <s> ^name explorer
-						 ^remote-sensor.distance > 20)
+						 ^remote-sensor.distance > 30)
 -->
 	(<s> ^obstacle false)
 }
 
 sp {explorer*elaborate*obstacle*true
 	(state <s> ^name explorer
-						 ^remote-sensor.distance <= 20)
+						 ^remote-sensor.distance <= 30)
 -->
 	(<s> ^obstacle true)
 }
@@ -190,13 +194,11 @@ sp {anystate*apply*move*output-link
 	(<out> ^motor <left> 
 				 ^motor <right>)
 	(<left> ^port <lp>
-					^start <left-start>)
+					^set-direction <dir>
+					^set-power <pow>)
 	(<right> ^port <rp>
-					 ^start <right-start>)
-	(<left-start> ^direction <dir>
-								^power <pow>)
-	(<right-start> ^direction <dir>
-								 ^power <pow>)
+					 ^set-direction <dir>
+					 ^set-power <pow>)
 }
 
 # Stop
@@ -209,9 +211,9 @@ sp {anystate*apply*stop*output-link
 	(<out> ^motor <left> 
 				 ^motor <right>)
 	(<left> ^port <lp>
-					^stop <stop>)
+					^set-power 0)
 	(<right> ^port <rp>
-					 ^stop <stop>)
+					 ^set-power 0)
 }
 
 # rotate-left
@@ -226,13 +228,11 @@ sp {anystate*apply*rotate-left*output-link
 	(<out> ^motor <left> 
 				 ^motor <right>)
 	(<left> ^port <lp>
-					^start <left-start>)
+					^set-direction backward
+					^set-power <pow>)
 	(<right> ^port <rp>
-					 ^start <right-start>)
-	(<left-start> ^direction backward
-								^power <pow>)
-	(<right-start> ^direction forward
-								 ^power <pow>)
+					 ^set-direction forward
+					 ^set-power <pow>)
 }
 
 # rotate-right
@@ -247,13 +247,11 @@ sp {anystate*apply*rotate-right*output-link
 	(<out> ^motor <left> 
 				 ^motor <right>)
 	(<left> ^port <lp>
-					^start <left-start>)
+					^set-direction forward
+					^set-power <pow>)
 	(<right> ^port <rp>
-					 ^start <right-start>)
-	(<left-start> ^direction forward
-								^power <pow>)
-	(<right-start> ^direction backward
-								 ^power <pow>)
+					 ^set-direction backward
+					 ^set-power <pow>)
 }
 
 

@@ -12,7 +12,8 @@ using namespace sml;
 
 Motor::Motor(uchar port, SoarCommunicator* comm)
 :port(port), comm(comm), speed(0), tachoCount(0), tachoSensor(0), motorId(0){
-
+	portStr = "A";
+	portStr[0] += port;
 }
 
 void Motor::readStatus(IntBuffer& buffer, uint& offset){
@@ -24,85 +25,62 @@ void Motor::readStatus(IntBuffer& buffer, uint& offset){
 void Motor::updateInputLink(Identifier* parentId){
 	if(!motorId){
 		motorId = parentId->CreateIdWME("motor");
-		motorId->CreateIntWME("port", port);
+		motorId->CreateStringWME("port", portStr.c_str());
 	}
 	WMUtil::updateIntWME(motorId, "speed", speed);
-	WMUtil::updateIntWME(motorId, "tach", tachoCount);
-	WMUtil::updateIntWME(motorId, "sensor", tachoSensor);
+
+	if(tachoCount == -1){
+		WMUtil::updateStringWME(motorId, "direction", "backward");
+	} else if(tachoCount == 1){
+		WMUtil::updateStringWME(motorId, "direction", "forward");
+	} else {
+		WMUtil::updateStringWME(motorId, "direction", "stopped");
+	}
+
+	WMUtil::updateIntWME(motorId, "amount-rotated", tachoSensor);
 }
 
 bool Motor::readSoarCommand(Identifier* commandId){
-	Identifier* childId;
-
 	Ev3Command command;
 	command.dev = OUTPUT_MAN_DEV;
-	if(WMUtil::getValue(commandId, "start", childId)){
-		if(!handleStartCommand(command.params, childId)){
+
+	// set-power command
+	int newPower;
+	bool setPower = WMUtil::getValue(commandId, "set-power", newPower);
+	if(setPower){
+		if(newPower == 0){
+			command.params.push_back(packBytes(port, MOTOR_COMMAND_STOP, 0, 0));
+		} else if(newPower > 0 && newPower <= 100){
+			command.params.push_back(packBytes(port, MOTOR_COMMAND_START, 0, 0));
+			command.params.push_back(packBytes(port, MOTOR_COMMAND_SET_POWER, (char)newPower, 0));
+		} else {
+			cout << "MOTOR " << portStr << " set-power " << newPower << " OUT OF RANGE (0-100)" << endl;
 			return false;
 		}
-	} else if(WMUtil::getValue(commandId, "set", childId)){
-		if(!handleSetCommand(command.params, childId)){
-			return false;
-		}
-	} else if(WMUtil::getValue(commandId, "stop", childId)){
-		if(!handleStopCommand(command.params, childId)){
-			return false;
-		}
-	} else {
-		commandId->CreateStringWME("error", "Unrecognized command");
-		return false;
 	}
-
-	comm->sendCommandToEv3(command, commandId);
-	return true;
-}
-
-bool Motor::handleStartCommand(IntBuffer& buffer, Identifier* commandId){
-	buffer.push_back(packBytes(port-1, MOTOR_COMMAND_START, 0, 0));
-	return handleSetCommand(buffer, commandId);
-}
-
-bool Motor::handleStopCommand(IntBuffer& buffer, Identifier* commandId){
-	buffer.push_back(packBytes(port-1, MOTOR_COMMAND_STOP, 0, 0));
-	return true;
-}
-
-bool Motor::handleSetCommand(IntBuffer& buffer, Identifier* commandId){
-	string dir;
-	if(WMUtil::getValue(commandId, "direction", dir)){
+		
+	// set-direction command
+	string newDir;
+	bool setDir = WMUtil::getValue(commandId, "set-direction", newDir);
+	if(setDir){
 		char d;
-		if(dir == "forward"){
+		if(newDir == "forward"){
 			d = MOTOR_DIR_FORWARD;
-		} else if(dir == "backward"){
+		} else if(newDir == "backward"){
 			d = MOTOR_DIR_BACKWARD;
 		} else {
-			commandId->CreateStringWME("error", "Unrecognized direction");
+			cout << "MOTOR " << portStr << " set-direction " << newDir << " INVALID" << endl;
 			return false;
 		}
-		//cout << "Set motor " << (short)port << " direction to " << dir << endl;
-		buffer.push_back(packBytes(port-1, MOTOR_COMMAND_SET_DIRECTION, d, 0));
+		command.params.push_back(packBytes(port, MOTOR_COMMAND_SET_DIRECTION, d, 0));
 	}
 
-	int speed;
-	if(WMUtil::getValue(commandId, "speed", speed)){
-		if(speed >= -100 && speed <= 100){
-		//	cout << " Set motor " << (short)port << " speed to " << speed << endl;
-			buffer.push_back(packBytes(port-1, MOTOR_COMMAND_SET_SPEED, (char)speed, 0));
-		} else {
-			commandId->CreateStringWME("error", "Speed must be between -100 and 100");
-			return false;
-		}
+	if(setPower || setDir){
+		comm->sendCommandToEv3(command, commandId);
+		return true;
+	} else {
+		cout << "MOTOR " << portStr << " INVALID COMMAND" << endl;
+		return false;
 	}
-
-	int power;
-	if(WMUtil::getValue(commandId, "power", power)){
-		if(power >= -100 && power <= 100){
-			buffer.push_back(packBytes(port-1, MOTOR_COMMAND_SET_POWER, (char)power, 0));
-		} else {
-			commandId->CreateStringWME("error", "Power must be between -100 and 100");
-			return false;
-		}
-	}
-
-	return true;
 }
+

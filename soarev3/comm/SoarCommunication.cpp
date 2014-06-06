@@ -86,7 +86,7 @@ void SoarLcmCommunicator::receiveAckMessage(IntBuffer& buffer, uint& offset){
 		}
 		IdentifierMap::iterator jt = waitingIdentifiers.find(ack);
 		if(jt != waitingIdentifiers.end()){
-			cout << "Added "<< ack << " to finished ids " << jt->second->GetValueAsString() << endl;
+			//cout << "Added "<< ack << " to finished ids " << jt->second->GetValueAsString() << endl;
 			finishedIdentifiers.insert(jt->second);
 			waitingIdentifiers.erase(jt);
 		}

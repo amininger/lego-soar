@@ -94,7 +94,7 @@ sp {topstate*propose*change-remote-mode
    (state <s> ^name ev3-agent
               ^remote-sensor <remote>)
    (<remote> ^port <port>
-             ^mode <> beacon)
+             ^mode <> remote)
 -->
    (<s> ^operator <o> + > =)
    (<o> ^name change-remote-mode
@@ -119,14 +119,14 @@ sp {topstate*apply*change-remote-mode
 -->
    (<out> ^sensor <sensor>)
    (<sensor> ^port <port>
-             ^set.mode beacon)
+             ^set-mode remote)
 }
 
 sp {topstate*propose*change-color-mode
    (state <s> ^name ev3-agent
               ^color-sensor <color>)
    (<color> ^port <port>
-             ^mode <> reflect)
+             ^mode <> ambient)
 -->
    (<s> ^operator <o> + > =)
    (<o> ^name change-color-mode
@@ -142,7 +142,7 @@ sp {topstate*apply*change-color-mode
 -->
    (<out> ^sensor <sensor>)
    (<sensor> ^port <port>
-             ^set.mode reflect)
+             ^set-mode ambient)
 }
 
 # Button pressed
@@ -158,10 +158,9 @@ sp {topstate*apply*handle-button-press*red-up
 			^cur-state released)
 -->
 	(<out>	^motor <red-up>)
-	(<red-up>	^port 2
-				^start <red-up-start>)
-	(<red-up-start>	^direction forward
-					^power 40)
+	(<red-up>	^port B
+						^set-direction forward
+						^set-power 40)
 }
 
 sp {topstate*apply*handle-button-press*red-down
@@ -176,10 +175,9 @@ sp {topstate*apply*handle-button-press*red-down
 			^cur-state pressed)
 -->
 	(<out>	^motor <red-up>)
-	(<red-up>	^port 2
-				^start <red-up-start>)
-	(<red-up-start>	^direction backward
-					^power 40)
+	(<red-up>	^port B
+						^set-direction backward
+						^power 40)
 }
 
 sp {topstate*apply*handle-button-press*red-up-down

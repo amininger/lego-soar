@@ -23,11 +23,8 @@ public:
 	}
 
 private:
-	bool handleStartCommand(IntBuffer& buffer, sml::Identifier* commandId);
-	bool handleStopCommand(IntBuffer& buffer, sml::Identifier* commandId);
-	bool handleSetCommand(IntBuffer& buffer, sml::Identifier* commandId);
-
 	uchar port;
+	string portStr;
 
 	SoarCommunicator* comm;
 

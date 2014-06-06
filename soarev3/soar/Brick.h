@@ -80,12 +80,9 @@ public:
 	}
 
 private:
-	bool handleSetCommand(IntBuffer& buffer, Identifier* commandId);
-
 	SoarCommunicator* comm;
 
 	Identifier* brickId;
-	Identifier* buttonsId;
 
 	ButtonVector buttons;
 	LedMap leds;
