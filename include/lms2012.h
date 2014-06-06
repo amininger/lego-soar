@@ -179,10 +179,6 @@ char      *HwId = "03";
 #define   DISABLE_DAISYCHAIN_COM_CALL
 #endif
 
-#ifndef PCASM
-#include  <asm/types.h>
-#endif
-
 #include  "lmstypes.h"
 #include  "bytecodes.h"
 

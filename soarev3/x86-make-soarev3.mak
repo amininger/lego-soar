@@ -3,14 +3,19 @@ SOURCES=$(shell cat soarev3.cxx)
 #SOURCES=LcmUtil.cpp WMUtil.cpp comm/CommStructs.cpp comm/SoarCommunication.cpp soar/SoarManager.cpp soar/SoarMotor.cpp soar/SoarBrick.cpp soar/SoarColorSensor.cpp soar/SoarTouchSensor.cpp
 OBJECTS=$(SOURCES:.cpp=.o)
 
-TOOLPREFIX=
-CC=$(TOOLPREFIX)g++
+OS := $(shell uname)
+ifeq ($(OS),Darwin) 
+	TOOLPREFIX=clang
+else
+	TOOLPREFIX=g
+endif
+CC=$(TOOLPREFIX)++
 
 FLAGS=-shared -fpic
 
 INCLUDEPATH=-I$(EV3)/soarev3 -I$(EV3)/lcmlite -I$(EV3)/include -I$(SOAR_HOME)/include 
 LIBRARYPATH=-L$(SOAR_HOME) -L$(EV3)/lib/x86
-LIBRARIES=-llcmlite -lSoar -lrt -ldl -lpthread
+LIBRARIES=-llcmlite -lSoar -ldl -lpthread
 
 all:: clean $(OBJECTS) $(PROGRAM)
 
