@@ -35,8 +35,8 @@ void TouchSensor::updateInputLink(sml::Identifier* inputLink){
 		rootId->CreateStringWME("type", "touch");
 		rootId->CreateIntWME("port", port);
 	}
-	WMUtil::updateStringWME(rootId, "pressed", (pressed ? "true" : "false"));
-	WMUtil::updateStringWME(rootId, "prev-pressed", (prev ? "true" : "false"));
+	WMUtil::updateStringWME(rootId, "current-state", (pressed ? "pressed" : "released"));
+	WMUtil::updateStringWME(rootId, "previous-state", (prev ? "pressed" : "released"));
 	prev = pressed;
 }
 
