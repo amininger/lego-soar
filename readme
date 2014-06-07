@@ -1,0 +1,122 @@
+Readme for running Soar on the Lego Ev3
+
+-------------------------------------------
+Directory Contents
+-------------------------------------------
+
+agents 		- holds code for soar agents developed for the robot
+bin 			- holds binaries for the various end programs
+include 	- holds headers with lego information/constants
+lcmlite 	- source code and makefiles for making the lcmlite libraries
+lib 			-	holds compiled libraries used in the end programs (lcmlite, soarev3)
+libSoar.a - a precompiled version of soar for the arm architecture
+lms_api 	-	example code found online from the bricxcc project, 
+						not directly used but useful for a reference
+lmsasm 		- lms assember
+						compiles rbf programs that can be executed from the brick menu
+setup.sh 	- should be executed once to create the lib/bin directories
+soarev3 	- source code and makefiles for the soarev3 library
+src 			- source code and makefiles for the final programs
+
+-------------------------------------------
+Setup Guide
+-------------------------------------------
+Guide to how to get things running (Assuming linux)
+
+1. Compiling arm programs
+If you want to be able to compile programs for the Ev3 robot, 
+you need to get the arm compiler.
+
+Download CodeSourcery G++ Lite:
+https://sourcery.mentor.com/GNUToolchain/release858
+
+Find the version for your processor and download the latest version.
+We're assuming yours is for linux and you download a tar.bz2 file
+
+extract the file to wherever you want  
+tar jxf arm-2009q1-203-arm-none-linux-gnueabi-i686-pc-linux-gnu.tar.bz2
+
+Add the arm-2009q1/bin folder to the $PATH environment variable:
+export PATH=$PATH:/$PATH_TO_ARM/arm-2009q1/bin
+
+If you're on a 64bit architecture, you will need to install ia32-libs
+
+
+2. lcmlite
+
+There are two makefiles you run with make -f <filename>
+
+arm-make-lcmlite.mak creates lib/arm/liblcmlite.a for the arm
+x86-make-soarev3.mak creates lib/x86/liblcmlite.so for intel x86
+
+
+3. soarev3
+
+There are two makefiles you run with make -f <filename>
+
+arm-make-soarev3.mak creates lib/arm/libsoarev3.a for the arm
+x86-make-soarev3.mak creates lib/x86/libsoarev3.so for intel x86
+
+
+4. src
+
+There are 3 makesfiles you can run with make -f <filename>
+
+native.mak - This creates a native (arm) version which does not have soar
+	but uses LCM to communicate
+	Creates bin/native_ev3
+
+soar.mak - This creates the soar only version which runs on a laptop
+	and communicates with the robot over LCM
+	creates bin/soar_ev3
+	Run with 1 argument - a soar file to source
+
+standalone.mak - This creates an arm version which includes soar and can
+	run all by itself on the robot without LCM
+	creates bin/standalone
+	Run with 1 argument - a soar file to source
+
+
+---------------------------------------------------------
+Running
+---------------------------------------------------------
+
+1. Connecting to the robot
+
+First, telnet into the robot
+Username is root
+Password is blank
+
+To enable ssh access (or scp), execute the command dropbear
+
+2. Transfer files to the robot
+
+Use scp to copy files over:
+
+scp bin/standalone root@IP:/media/card
+scp bin/native_ev3 root@IP:/media/card
+
+scp agents/test_remove.soar root@IP:/media/card/agents
+
+3. Running with soar remotely
+
+Connect to the robot and navigate to /media/card
+Run ./native_ev3
+
+On your computer, run:
+bin/soar_ev3 agents/AGENT_FILE.soar
+
+4. Running with soar natively
+
+Connect to the robot and navigate to /media/card
+Run ./standalone agents/AGENT_FILE.soar
+
+----------------------------------------------------
+Soar Interface
+---------------------------------------------------
+
+Color modes
+reflect, ambient, color
+
+Remote modes
+proximity, remote, beacon

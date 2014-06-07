@@ -1,0 +1,31 @@
+###################################################
+#	init-agent operator
+#
+#	Initializes the top-state to have a name,
+#	hard coded sensor ports, and hard coded sensor
+#	"meanings" (such as 1, black, corresponds to
+#	forward).
+###################################################
+
+# Proposal Rule
+sp {Common-Include*Init-Agent*propose*init-agent
+   (state <s> ^superstate nil
+             -^name)
+-->
+   (<s> ^operator <o> + >)
+   (<o> ^name init-agent)
+}
+
+# Apply rule
+sp {Common-Include*Init-Agent*apply*init-agent
+   (state <s> ^operator.name init-agent)
+-->
+   (<s> ^explorer <s>
+        ^name line-follower
+		^mode follow
+		^left-motor-port 2 # Port B
+		^right-motor-port 3 # Port C
+		^color-forward 1 # Color: black
+		^color-left 6 # Color: white
+		^color-right 7) # Color: brown
+}

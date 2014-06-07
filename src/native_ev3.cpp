@@ -7,7 +7,13 @@ using namespace std;
 
 
 int main(int argc, char** argv){
-	Ev3LcmCommunicator comm;
+	if(argc < 2){
+		cout << "Param 1: Channel (1-999)" << endl;
+		return 0;
+	}
+
+
+	Ev3LcmCommunicator comm(argv[1]);
 	Ev3Manager manager;
 	comm.assignManager(&manager);
 	comm.start();

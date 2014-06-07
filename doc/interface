@@ -1,0 +1,80 @@
+^io.input-link
+	^time-step INT 
+	^brick
+		^up-button
+			^current-state << pressed released >>
+			^previous-state << pressed released >>
+			(rest of buttons are same)
+		^right-button
+		^down-button
+		^left-button
+		^enter-button
+		^back-button
+
+	^sensor 
+		^type color
+		^mode << reflect ambient color >>
+
+		# REFLECT MODE
+		^brightness 0-100	# Shines a red light and returns how much red it sees reflected (higher = brighter)
+
+		# AMBIENT MODE
+		^brightness 0-100  # Detects how much ambient light (0=dark, 100=bright)
+
+		# COLOR MODE
+		^value << none black blue green yellow red white brown >> 
+
+	^sensor
+		^type ir-remote
+		^mode << proximity remote beacon >>
+
+		# PROXIMITY MODE
+		^distance 1-100  # How far in front an obstacle is (1=close, 100=far)
+
+		# BEACON MODE
+		^direction -25 to 25 		# -25 = behind and left, 0 = center, 25 = behind and right
+		^distance 1-100 (-128 for no signal)  # distance to the remote (1=close, 100=far)
+
+		# REMOTE MODE
+		^channel 1-4
+		^red-up-button
+			^current-state << pressed released >>
+			^previous-state << pressed released >>
+			# SAME FOR OTHER BUTTONS
+		^red-down-button
+		^blue-up-button
+		^blue-down-button
+
+	^motor
+		^port A-D 
+		^speed 0-100
+		^direction << backward forward stopped >>
+		^rotation -INF to INF
+
+Output
+
+^io.output-link
+	^create-sensor
+		^type << touch >>
+		^port 1-4
+
+	^delete-sensor
+		^port 1-4
+
+	^brick
+		^set-led-pattern << off solid-green solid-red solid-orange 
+			flash-green flash-red flash-orange pulse-green pulse-red pulse-orange >>
+
+	^sensor
+		^port 1-4
+		# COLOR SENSOR
+		^set-mode << reflect ambient color >>
+		# IR REMOTE SENSOR
+		^set-mode << proximity beacon remote >>
+		^set-channel 1-4
+
+	^motor
+		^port A-D
+		^set-direction << forward backward >>
+		^set-power 0-100
+		

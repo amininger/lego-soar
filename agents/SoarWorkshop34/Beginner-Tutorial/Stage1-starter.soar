@@ -1,0 +1,140 @@
+###################################################
+# Common Includes (init, wait, etc.)
+# These are provided for you.
+###################################################
+
+source ../Common-Include.soar
+
+###################################################
+# This file contains the following operators:
+#	move-foward
+#	move-left
+#	move-right
+#
+# This is a total of six rules.  The agent will
+# successfully follow a colored line and stop when
+# a button on the brick is pressed. You do not have
+# to handle the stop portion, so long as you test
+# for ^mode follow on the top state in your proposal
+###################################################
+
+###################################################
+#	move-forward operator
+###################################################
+
+# Propose the move-forward operator if the current
+# detected color sensor value is the forward value
+# and our mode is "follow"
+sp {Stage1*propose*move-forward
+	# Test for the conditions that lead to a proposal
+	# for move-forward.
+-->
+	# Create the operator here
+}
+
+# Apply the move-forward operator if we have the
+# move-forward operator selected, an output link,
+# a left motor port, and a right motor port.
+sp {Stage1*apply*move-forward
+	(state <s>	^operator.name move-forward
+				^io.output-link <out>
+				^left-motor-port <left-port>
+				^right-motor-port <right-port>)
+-->
+	# Create a command for each motor on the output
+	# link
+	(<out>	^motor <left>
+			^motor <right>)
+	# For the "left" motor identifier, set the port
+	# to be the left motor's port.  Also, create an
+	# identifier named "start" for setting the power
+	# level and direction of the motor.
+	(<left>	^port <left-port>
+			^start <left-start>)
+	# Do the same thing for the right motor but with
+	# the right motor's port
+	(<right>	^port <right-port>
+				^start <right-start>)
+	# Since this is the move-forward operator, set the
+	# direction to be backward for both the left and
+	# right motor.  This means that we consider the
+	# side of the robot without the IR sensor the
+	# front.  Also, set the power to be 40% of the total
+	# available power.
+	(<left-start>	^direction backward
+					^power 40)
+	(<right-start>	^direction backward
+					^power 40)
+}
+
+###################################################
+#	move-left operator
+###################################################
+
+# This move-left operator is the same as the
+# move-forward operator except for three changes.
+# 1) The operator has been renamed to move-left
+# 2) The color-forward test in the proposal has been
+#    changed to color-left
+# 3) The direction for the left motor has been changed
+#    to forward instead of backward.
+sp {Stage1*propose*move-left
+	# Test for the conditions that lead to a proposal
+	# for move-left.
+-->
+	# Create the operator here
+}
+
+sp {Stage1*apply*move-left
+	(state <s>	^operator.name move-left
+				^io.output-link <out>
+				^left-motor-port <left-port>
+				^right-motor-port <right-port>)
+-->
+	(<out>	^motor <left>
+			^motor <right>)
+	(<left>	^port <left-port>
+			^start <left-start>)
+	(<right>	^port <right-port>
+				^start <right-start>)
+	(<left-start>	^direction forward
+					^power 40)
+	(<right-start>	^direction backward
+					^power 40)
+}
+
+###################################################
+#	move-right operator
+###################################################
+
+# This move-right operator is the same as the
+# move-forward operator except for three changes.
+# 1) The operator has been renamed to move-right
+# 2) The color-forward test in the proposal has been
+#    changed to color-right
+# 3) The direction for the right motor has been changed
+#    to forward instead of backward.
+sp {Stage1*propose*move-right
+	# Test for the conditions that lead to a proposal
+	# for move-right.
+-->
+	# Create the operator here
+}
+
+sp {Stage1*apply*move-right
+	(state <s>	^operator.name move-right
+				^io.output-link <out>
+				^left-motor-port <left-port>
+				^right-motor-port <right-port>)
+-->
+	(<out>	^motor <left>
+			^motor <right>)
+	(<left>	^port <left-port>
+			^start <left-start>)
+	(<right>	^port <right-port>
+				^start <right-start>)
+	(<left-start>	^direction backward
+					^power 40)
+	(<right-start>	^direction forward
+					^power 40)
+}

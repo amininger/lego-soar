@@ -1,7 +1,6 @@
 *.so
 *.o
 *.a
+lib
 bin
 arm-2009q1
-
-

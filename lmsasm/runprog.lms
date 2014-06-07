@@ -1,0 +1,10 @@
+vmthread MAIN
+{
+	DATA32 Timer
+	DATA32 Status
+
+	SYSTEM('/media/card/standalone /media/card/agents/test_remote.soar',Status)
+
+	TIMER_WAIT(1000,Timer)
+	TIMER_READY(Timer)
+}

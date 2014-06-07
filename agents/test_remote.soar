@@ -1,0 +1,356 @@
+# init-agent - initializes the agent
+sp {topstate*propose*init-agent
+   (state <s> ^superstate nil
+             -^name)
+-->
+   (<s> ^operator <o> +)
+   (<o> ^name init-agent)
+}
+
+sp {topstate*apply*init-agent
+   (state <s> ^operator.name init-agent)
+-->
+	(<s>	^topstate <s>
+			^name ev3-agent
+			^buttons <b>)
+}
+
+sp {topstate*apply*init-agent*change*sensor
+	(state <s> ^operator.name init-agent
+						 ^io.output-link <out>)
+-->
+	(<out>	^manager.create-sensor <cs>)
+	(<cs>	^port 1
+			^type touch)
+}
+
+# Will apply the wait operator when there's nothing else to do
+sp {topstate*propose*wait
+   (state <s> ^superstate <ss>
+             -^operator.name wait)
+-->
+   (<s> ^operator <o> + < =)
+   (<o> ^name wait)
+}
+
+# Elaborates the remote sensor onto the topstate
+sp {topstate*elaborate*remote-sensor
+   (state <s> ^name ev3-agent
+              ^io.input-link.sensor <remote>)
+   (<remote> ^type ir-remote)
+-->
+   (<s> ^remote-sensor <remote>)
+}
+
+sp {topstate*elaborate*color-sensor
+   (state <s> ^name ev3-agent
+              ^io.input-link.sensor <color>)
+   (<color> ^type color)
+-->
+   (<s> ^color-sensor <color>)
+}
+
+sp {topstate*elaborate*handle-buttons*flag
+	(state <s>	^name ev3-agent
+				^remote-sensor <rs>
+				^color-sensor <cs>)
+	(<rs> ^button <b1>)
+	(<b1>	^prev-state <state>
+			^cur-state <> <state>)
+-->
+	(<s> ^button-delta YES)
+}
+
+# Removes output-link commands when a status is put on them
+sp {topstate*propose*handle-buttons
+	(state <s>	^name ev3-agent
+				^button-delta YES)
+-->
+	(<s> ^operator <o> + !)
+	(<o> ^name handle-buttons)
+}
+
+sp {topstate*remove*completed*actions*d1
+   (state <s> ^name ev3-agent
+              ^operator <op>
+              ^io.output-link <out>)
+   (<out> ^<att> <cmd>)
+   (<cmd> ^status <status>)
+-->
+   (<out> ^<att> <cmd> -)
+}
+
+# If there was an error, print it
+sp {topstate*print*command*error
+   (state <s> ^name ev3-agent
+              ^io.output-link.<name> <cmd>)
+   (<cmd> ^error <error>)
+-->
+   (write |Error on | <name> | = '| <error> |'| (crlf))
+}
+
+# if the remote is not in remote mode, changes the mode
+sp {topstate*propose*change-remote-mode
+   (state <s> ^name ev3-agent
+              ^remote-sensor <remote>)
+   (<remote> ^port <port>
+             ^mode <> remote)
+-->
+   (<s> ^operator <o> + > =)
+   (<o> ^name change-remote-mode
+        ^port <port>)
+}
+sp {topstate*prefer*color*over*remote
+	(state <s> ^name ev3-agent
+						 ^operator <o1> +
+						 ^operator <o2> +)
+	(<o1> ^name change-color-mode)
+	(<o2> ^name change-remote-mode)
+-->
+	(<s> ^operator <o1> > <o2>)
+}
+
+sp {topstate*apply*change-remote-mode
+   (state <s> ^name ev3-agent
+              ^operator <o>
+              ^io.output-link <out>)
+   (<o> ^name change-remote-mode
+        ^port <port>)
+-->
+   (<out> ^sensor <sensor>)
+   (<sensor> ^port <port>
+             ^set-mode remote)
+}
+
+sp {topstate*propose*change-color-mode
+   (state <s> ^name ev3-agent
+              ^color-sensor <color>)
+   (<color> ^port <port>
+             ^mode <> ambient)
+-->
+   (<s> ^operator <o> + > =)
+   (<o> ^name change-color-mode
+        ^port <port>)
+}
+
+sp {topstate*apply*change-color-mode
+   (state <s> ^name ev3-agent
+              ^operator <o>
+              ^io.output-link <out>)
+   (<o> ^name change-color-mode
+        ^port <port>)
+-->
+   (<out> ^sensor <sensor>)
+   (<sensor> ^port <port>
+             ^set-mode ambient)
+}
+
+# Button pressed
+sp {topstate*apply*handle-button-press*red-up
+	(state <s>	^operator.name handle-buttons
+				^remote-sensor <rs>
+				^io.output-link <out>)
+	(<rs>	^button <b1>
+			^button <b2>)
+	(<b1>	^name red-up
+			^cur-state pressed)
+	(<b2>	^name red-down
+			^cur-state released)
+-->
+	(<out>	^motor <red-up>)
+	(<red-up>	^port B
+						^set-direction forward
+						^set-power 40)
+}
+
+sp {topstate*apply*handle-button-press*red-down
+	(state <s>	^operator.name handle-buttons
+				^remote-sensor <rs>
+				^io.output-link <out>)
+	(<rs>	^button <b1>
+			^button <b2>)
+	(<b1>	^name red-up
+			^cur-state released)
+	(<b2>	^name red-down
+			^cur-state pressed)
+-->
+	(<out>	^motor <red-up>)
+	(<red-up>	^port B
+						^set-direction backward
+						^power 40)
+}
+
+sp {topstate*apply*handle-button-press*red-up-down
+	(state <s>	^operator.name handle-buttons
+				^remote-sensor <rs>
+				^io.output-link <out>)
+	(<rs>	^button <b1>
+			^button <b2>)
+	(<b1>	^name red-up
+			^prev-state released
+			^cur-state pressed)
+	(<b2>	^name red-down
+			^prev-state released
+			^cur-state pressed)
+-->
+	(<out>	^motor <claw>
+			^motor <left>)
+	(<claw>	^port 1
+			^start <claw-start>)
+	(<claw-start>	^direction forward
+					^power 40)
+	(<left>	^port 2
+				^stop <stop>)
+}
+
+sp {topstate*apply*handle-button-press*red-up*stop
+	(state <s>	^operator.name handle-buttons
+				^remote-sensor <rs>
+				^io.output-link <out>)
+	(<rs>	^button <b1>
+			^button <b2>)
+	(<b1>	^name red-up
+			^cur-state released)
+	(<b2>	^name red-down
+			^cur-state released)
+-->
+	(<out>	^motor <left>)
+	(<left>	^port 2
+			^stop <stop>)
+}
+
+# BLUE
+
+sp {topstate*apply*handle-button-press*blue-up
+	(state <s>	^operator.name handle-buttons
+				^remote-sensor <rs>
+				^io.output-link <out>)
+	(<rs>	^button <b1>
+			^button <b2>)
+	(<b1>	^name blue-up
+			^cur-state pressed)
+	(<b2>	^name blue-down
+			^cur-state released)
+-->
+	(<out>	^motor <blue-up>)
+	(<blue-up>	^port 3
+				^start <blue-up-start>)
+	(<blue-up-start>	^direction forward
+					^power 40)
+}
+
+sp {topstate*apply*handle-button-press*blue-down
+	(state <s>	^operator.name handle-buttons
+				^remote-sensor <rs>
+				^io.output-link <out>)
+	(<rs>	^button <b1>
+			^button <b2>)
+	(<b1>	^name blue-up
+			^cur-state released)
+	(<b2>	^name blue-down
+			^cur-state pressed)
+-->
+	(<out>	^motor <blue-up>)
+	(<blue-up>	^port 3
+				^start <blue-up-start>)
+	(<blue-up-start>	^direction backward
+					^power 40)
+}
+
+sp {topstate*apply*handle-button-press*blue-up-down
+	(state <s>	^operator.name handle-buttons
+				^remote-sensor <rs>
+				^io.output-link <out>)
+	(<rs>	^button <b1>
+			^button <b2>)
+	(<b1>	^name blue-up
+			^prev-state released
+			^cur-state pressed)
+	(<b2>	^name blue-down
+			^prev-state released
+			^cur-state pressed)
+-->
+	(<out>	^motor <claw>
+			^motor <right>)
+	(<claw>	^port 1
+			^start <claw-start>)
+	(<claw-start>	^direction backward
+					^power 40)
+	(<right>	^port 3
+				^stop <stop>)
+}
+
+sp {topstate*apply*handle-button-press*blue-up*stop
+	(state <s>	^operator.name handle-buttons
+				^remote-sensor <rs>
+				^io.output-link <out>)
+	(<rs>	^button <b1>
+			^button <b2>)
+	(<b1>	^name blue-up
+			^cur-state released)
+	(<b2>	^name blue-down
+			^cur-state released)
+-->
+	(<out>	^motor <right>)
+	(<right>	^port 3
+				^stop <stop>)
+}
+
+sp {topstate*should-stop-claw
+	(state <s> ^remote-sensor <rs>)
+	(<rs>	^button <b1>
+			^button <b2>)
+	(<b1>	^name blue-up
+			^cur-state released)
+	(<b2>	^name red-up
+			^cur-state released)
+-->
+	(<s> ^should-stop-claw YES)
+}
+
+sp {topstate*should-stop-claw
+	(state <s> ^remote-sensor <rs>)
+	(<rs>	^button <b1>
+			^button <b2>)
+	(<b1>	^name blue-down
+			^cur-state released)
+	(<b2>	^name red-up
+			^cur-state released)
+-->
+	(<s> ^should-stop-claw YES)
+}
+
+sp {topstate*should-stop-claw
+	(state <s> ^remote-sensor <rs>)
+	(<rs>	^button <b1>
+			^button <b2>)
+	(<b1>	^name blue-up
+			^cur-state released)
+	(<b2>	^name red-down
+			^cur-state released)
+-->
+	(<s> ^should-stop-claw YES)
+}
+
+sp {topstate*should-stop-claw
+	(state <s> ^remote-sensor <rs>)
+	(<rs>	^button <b1>
+			^button <b2>)
+	(<b1>	^name blue-down
+			^cur-state released)
+	(<b2>	^name red-down
+			^cur-state released)
+-->
+	(<s> ^should-stop-claw YES)
+}
+
+sp {topstate*apply*handle-button-press*claw*stop
+	(state <s>	^operator.name handle-buttons
+				^remote-sensor <rs>
+				^should-stop-claw YES
+				^io.output-link <out>)
+-->
+	(<out>	^motor <claw>)
+	(<claw>	^port 1
+			^stop <stop>)
+}
