@@ -1,3 +1,12 @@
+########################################################
+#
+# Common-Include/Sensors.soar
+# Includes:
+#   elaborate ^color-sensor-value
+#   operator change-color-mode
+#   operator create-touch-sensor
+#
+#########################################################
 
 # Elaborates the color sensor value onto the top state
 sp {Common-Include*Sensors*elaborate*color-sensor
@@ -35,7 +44,7 @@ sp {Common-Include*Sensors*propose*change-color-mode
 			^port <port>
 			^mode <> color)
 -->
-   (<s>	^operator <o> + >)	# We should always do this
+   (<s>	^operator <o> + > =)	# We should always do this
 							# as this is a critical
 							# operator to the program
 							# working as we intend.
@@ -54,5 +63,41 @@ sp {Common-Include*Sensors*apply*change-color-mode
 -->
    (<out> ^sensor <sensor>)
    (<sensor> ^port <port>
-             ^set.mode color)
+             ^set-mode color)
+}
+
+###################################################
+#	create-touch-sensor operator
+#
+# Creates a touch sensor on the desired port
+# (Touch sensor is not auto-detected)
+###################################################
+
+# Proposal Rule
+sp {Common-Include*Sensors*propose*create-touch-sensor
+   (state <s>	^name line-follower
+               ^io.input-link <il>
+               ^touch-sensor-port <port>)
+  (<il> -^sensor.type touch)
+-->
+   (<s>	^operator <o> + > =)	# We should always do this
+							# as this is a critical
+							# operator to the program
+							# working as we intend.
+   (<o> ^name create-touch-sensor
+         ^port <port>)
+}
+
+# Apply rule
+# Create the command on the output link
+sp {Common-Include*Sensors*apply*create-touch-sensor
+   (state <s> ^name line-follower
+              ^operator <o>
+              ^io.output-link <out>)
+   (<o> ^name create-touch-sensor
+        ^port <port>)
+-->
+  (<out> ^manager.create-sensor <create>)
+  (<create> ^type touch
+             ^port <port>)
 }

@@ -1,55 +1,10 @@
-
 ###################################################
-#	handle-button-press operator
 #
-#	When a button is pressed on the main brick, this
-#	catches the event and will switch the modes.
-#
-#	Modes:
-#		follow
-#		wait
+# File: Common-Include/Stop-Agent
+# Contains:
+#   stop operator
+#  
 ###################################################
-
-# Proposal Rule
-sp {Common-Include*Stop-Agent*propose*handle-button-press
-	(state <s>	^name line-follower
-				^io.input-link.brick.buttons.button <button>
-				^mode <cur-mode>)
-	(<button>	^prev-state released
-				^cur-state pressed)
--->
-	(<s>	^operator <o> + = >)
-	(<o>	^name handle-button-press
-			^button <button>
-			^mode <cur-mode>)
-}
-
-# Apply Rules
-
-# If we were just following, then the button press is to stop
-sp {Common-Include*Stop-Agent*apply*handle-button-press*toggle*mode*wait
-	(state <s>	^name line-follower
-				^operator <o>
-				^mode follow)
-	(<o>	^name handle-button-press
-			^mode follow)
--->
-	(<s>	^mode follow -
-			^mode wait
-			^stop-agent YES) # Create the flag to stop the agent
-}
-
-# If we were just waiting, then the button press is to start following
-sp {Common-Include*Stop-Agent*apply*handle-button-press*toggle*mode*explore
-	(state <s>	^name line-follower
-				^operator <o>
-				^mode wait)
-	(<o>	^name handle-button-press
-			^mode wait)
--->
-	(<s>	^mode wait -
-			^mode follow)
-}
 
 ###################################################
 #	stop operator
@@ -86,16 +41,13 @@ sp {Common-Include*Stop-Agent*apply*stop
 				^io.output-link <out>)
 -->
 	(<s> ^stop-agent YES -)
-	(<out>	^motor <1>
-			^motor <2>
-			^motor <3>
-			^motor <4>)
-    (<1>	^port 1
-			^stop <stop1>)
-    (<2>	^port 2
-			^stop <stop2>)
-    (<3>	^port 3
-			^stop <stop3>)
-	(<4>	^port 4
-			^stop <stop4>)
+  (<out>	^motor <A> <B> <C> <D>)
+  (<A> ^port A 
+        ^set-power 0)
+  (<B> ^port B
+        ^set-power 0)
+  (<C> ^port C
+        ^set-power 0)
+  (<D> ^port D
+        ^set-power 0)
 }

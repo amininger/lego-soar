@@ -1,0 +1,19 @@
+source Init-Agent.soar
+# Code to initialize the agent
+
+source Output-Link.soar
+# Code to manage the output link
+
+source Sensors.soar
+# Code for creating and managing sensors
+
+source Toggle-Mode.soar
+# Code to toggle the mode from follow to wait 
+# (after button press)
+
+source Stop-Agent.soar
+# Code to stop the agent when ^stop-agent YES 
+#   is elaborated on the topstate
+
+source Wait.soar
+# Proposes wait operator when not doing anything else

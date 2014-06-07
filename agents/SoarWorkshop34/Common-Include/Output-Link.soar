@@ -1,4 +1,11 @@
-
+###################################################
+#
+# File Common-Include/Output-Link.soar
+# Contains:
+#   Remove completed actions from output-link
+#   Print output-link error messages
+#
+####################################################
 # Removes output-link commands when a status is put on them
 sp {Common-Include*Output-Link*remove*completed*actions*d1
    (state <s> ^name line-follower

@@ -1,0 +1,76 @@
+source ../Common-Include/Common-Include_source.soar
+
+# move-forward
+
+sp {propose*move-forward
+  (state <s> ^color-sensor-value <val>
+              ^color-forward <val>)
+-->
+  (<s> ^operator <o> +)
+  (<o> ^name move-forward)
+}
+
+sp {apply*move-forward
+  (state <s> ^operator.name move-forward
+              ^io.output-link <out>
+              ^left-motor-port <left-port>
+              ^right-motor-port <right-port>)
+-->
+  (<out> ^motor <left> <right>)
+  (<left> ^port <left-port>
+           ^set-direction forward
+           ^set-power 40)
+  (<right> ^port <right-port> 
+            ^set-direction forward
+            ^set-power 40)
+}
+
+# move-right
+
+sp {propose*move-right
+  (state <s> ^color-sensor-value <val>
+              ^color-right <val>)
+-->
+  (<s> ^operator <o> +)
+  (<o> ^name move-right)
+}
+
+sp {apply*move-right
+  (state <s> ^operator.name move-right
+              ^io.output-link <out>
+              ^left-motor-port <left-port>
+              ^right-motor-port <right-port>)
+-->
+  (<out> ^motor <left> <right>)
+  (<left> ^port <left-port>
+           ^set-direction backward
+           ^set-power 40)
+  (<right> ^port <right-port> 
+            ^set-direction forward
+            ^set-power 40)
+}
+
+# move-left
+
+sp {propose*move-left
+  (state <s> ^color-sensor-value <val>
+              ^color-left <val>)
+-->
+  (<s> ^operator <o> +)
+  (<o> ^name move-left)
+}
+
+sp {apply*move-left
+  (state <s> ^operator.name move-left
+              ^io.output-link <out>
+              ^left-motor-port <left-port>
+              ^right-motor-port <right-port>)
+-->
+  (<out> ^motor <left> <right>)
+  (<left> ^port <left-port>
+           ^set-direction forward
+           ^set-power 40)
+  (<right> ^port <right-port> 
+            ^set-direction backward
+            ^set-power 40)
+}
