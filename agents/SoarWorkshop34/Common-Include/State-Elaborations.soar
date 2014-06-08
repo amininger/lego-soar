@@ -1,0 +1,15 @@
+###############################################################
+#
+# File: Common-Include/State-Elaborations.soar
+# Contains:
+#   Elaborate substate name
+#
+###############################################################
+
+# Elaborate the name of a substate as the superstate operator
+sp {Common-Include*State-Elaborations*elaborate*substate*name
+	(state <s> ^superstate.operator.name <name>)
+-->
+	(<s> ^name <name>)
+}
+

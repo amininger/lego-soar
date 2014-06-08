@@ -2,7 +2,6 @@
 # This file contains the following operators:
 #	swap-colors
 #	follow-line
-#	follow-line*init-substate
 #	move-left
 #	move-right
 #	move-forward
@@ -30,14 +29,13 @@
 #	swap-colors operator
 ###################################################
 
-# Propose to swap colors when we have a color value
-# of red (value: 5).
+# Propose to swap colors when we have a color value of red
 sp {Stage3*propose*swap-colors
 	(state <s>	^name line-follower
 				^mode follow
 				^color-left <cl>
 				^color-right <cr>
-				^color-sensor-value 5
+				^color-sensor-value red
 				-^did-swap)
 -->
 	(<s> ^operator <o> + >)
@@ -126,13 +124,11 @@ sp {Stage3*apply*move-180*start-movement
 	(<out>	^motor <left>
 			^motor <right>)
 	(<left>	^port <left-port>
-			^start <left-start>)
-	(<right>	^port <right-port>
-				^start <right-start>)
-	(<left-start>	^direction forward
+					^set-direction forward
 					^power 40)
-	(<right-start>	^direction backward
-					^power 40)
+	(<right> ^port <right-port>
+					 ^set-direction backward
+					 ^set-power 40)
 }
 
 # An elaboration to create a flag on the state when
@@ -147,9 +143,9 @@ sp {Stage3*elaboration*move-180*has-finished
 	(<il>	^motor <left-motor>
 			^motor <right-motor>)
 	(<left-motor>	^port <lmp>
-					^sensor >= <left-value>)
+					^amount-rotated >= <left-value>)
 	(<right-motor>	^port <rmp>
-					^sensor <= <right-value>)
+					^amount-rotated <= <right-value>)
 -->
 	(<s>	^has-rotated-180 YES)
 }
@@ -167,7 +163,7 @@ sp {Stage3*propose*move-forward-until-done-swapping
 	(state <s>	^name follow-line
 				^superstate.has-rotated-180 YES
 				^color-forward <value>
-				^color-sensor-value 5)
+				^color-sensor-value red)
 -->
 	(<s> ^operator <o> +)
 	(<o> ^name move-forward)
@@ -192,7 +188,7 @@ sp {Stage3*apply*swap-colors*remove-flags
 				^did-swap YES
 				^left-motor-sensor-value <lvalue>
 				^right-motor-sensor-value <rvalue>
-				^color-sensor-value <> 5)
+				^color-sensor-value <> red)
 -->
 	(<s>	^did-swap YES -
 			^left-motor-sensor-value <lvalue> -

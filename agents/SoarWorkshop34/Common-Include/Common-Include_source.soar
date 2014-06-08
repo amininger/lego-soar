@@ -1,3 +1,6 @@
+source State-Elaborations.soar
+# Elaborations for states (topstate and substate)
+
 source Init-Agent.soar
 # Code to initialize the agent
 

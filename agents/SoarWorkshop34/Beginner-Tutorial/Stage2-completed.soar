@@ -3,12 +3,11 @@
 # These are provided for you.
 ###################################################
 
-source ../Common-Include.soar
+source ../Common-Include/Common-Include_source.soar
 
 ###################################################
 # This file contains the following operators:
 #	follow-line
-#	follow-line*init-substate
 #	move-left
 #	move-right
 #	move-forward
@@ -33,26 +32,26 @@ sp {Stage2*propose*follow-line
 	(<o>	^name follow-line)
 }
 
-###################################################
-#	follow-line*init-substate operator
-###################################################
-
-sp {Stage2*propose*follow-line*init-substate
-	(state <s>	-^name
-				^attribute operator
-				^impasse no-change
-				^superstate <ss>)
-	(<ss>	^name line-follower)
--->
-	(<s>	^operator <o> +)
-	(<o>	^name follow-line*init-substate)
-}
-
-sp {Stage2*apply*follow-line*init-substate
-	(state <s>	^operator.name follow-line*init-substate)
--->
-	(<s>	^name follow-line)
-}
+####################################################
+##	follow-line*init-substate operator
+####################################################
+#
+#sp {Stage2*propose*follow-line*init-substate
+#	(state <s>	-^name
+#				^attribute operator
+#				^impasse no-change
+#				^superstate <ss>)
+#	(<ss>	^name line-follower)
+#-->
+#	(<s>	^operator <o> +)
+#	(<o>	^name follow-line*init-substate)
+#}
+#
+#sp {Stage2*apply*follow-line*init-substate
+#	(state <s>	^operator.name follow-line*init-substate)
+#-->
+#	(<s>	^name follow-line)
+#}
 
 sp {Stage2*elaboration*copy-substate-structures
 	(state <s>	^name follow-line
@@ -105,7 +104,7 @@ sp {Stage2*propose*move-forward
 # a left motor port, and a right motor port.
 sp {Stage2*apply*move-forward
 	(state <s>	^operator.name move-forward
-				^superstate.io.output-link <out>
+				^io.output-link <out>
 				^left-motor-port <left-port>
 				^right-motor-port <right-port>)
 -->
@@ -113,26 +112,12 @@ sp {Stage2*apply*move-forward
 	# link
 	(<out>	^motor <left>
 			^motor <right>)
-	# For the "left" motor identifier, set the port
-	# to be the left motor's port.  Also, create an
-	# identifier named "start" for setting the power
-	# level and direction of the motor.
 	(<left>	^port <left-port>
-			^start <left-start>)
-	# Do the same thing for the right motor but with
-	# the right motor's port
+					^set-direction backward
+					^set-power 40)
 	(<right>	^port <right-port>
-				^start <right-start>)
-	# Since this is the move-forward operator, set the
-	# direction to be backward for both the left and
-	# right motor.  This means that we consider the
-	# side of the robot without the IR sensor the
-	# front.  Also, set the power to be 40% of the total
-	# available power.
-	(<left-start>	^direction backward
-					^power 40)
-	(<right-start>	^direction backward
-					^power 40)
+					 ^set-direction backward
+					 ^set-power 40)
 }
 
 ###################################################
@@ -157,20 +142,18 @@ sp {Stage2*propose*move-left
 
 sp {Stage2*apply*move-left
 	(state <s>	^operator.name move-left
-				^superstate.io.output-link <out>
+				^io.output-link <out>
 				^left-motor-port <left-port>
 				^right-motor-port <right-port>)
 -->
 	(<out>	^motor <left>
 			^motor <right>)
 	(<left>	^port <left-port>
-			^start <left-start>)
+					^set-direction forward
+					^set-power 40)
 	(<right>	^port <right-port>
-				^start <right-start>)
-	(<left-start>	^direction forward
-					^power 40)
-	(<right-start>	^direction backward
-					^power 40)
+					 ^set-direction backward
+					 ^set-power 40)
 }
 
 ###################################################
@@ -195,18 +178,17 @@ sp {Stage2*propose*move-right
 
 sp {Stage2*apply*move-right
 	(state <s>	^operator.name move-right
-				^superstate.io.output-link <out>
+				^io.output-link <out>
 				^left-motor-port <left-port>
 				^right-motor-port <right-port>)
 -->
 	(<out>	^motor <left>
 			^motor <right>)
 	(<left>	^port <left-port>
-			^start <left-start>)
+					^set-direction backward
+					^set-power 40)
 	(<right>	^port <right-port>
-				^start <right-start>)
-	(<left-start>	^direction backward
-					^power 40)
-	(<right-start>	^direction forward
-					^power 40)
+					 ^set-direction forward
+					 ^set-power 40)
 }
+

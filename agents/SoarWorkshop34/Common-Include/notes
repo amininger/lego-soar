@@ -1,0 +1,48 @@
+topstate <s>
+	^name line-follower
+	^mode << follow wait >>  (changed w/ button press)
+	^touch-sensor-port 2
+	^left-motor-port B
+	^right-motor-port C
+	^color-forward black
+	^color-left white   # swapped after turnaround
+	^color-right brown
+	^color-sensor-value << black brown white red >>
+
+	^has-rotated-180 YES # when the sensors say the robot has turned 180
+	^did-swap YES # elaborated after the turn color values were swapped
+	
+	^stop-agent YES  # Created to stop the agent
+
+operators:
+	# In Common-Include
+	init-agent
+	change-color-mode
+	create-touch-sensor
+	toggle-robot-mode
+	wait
+	stop
+	
+	# Created by user
+	# (proposed on topstate in stage 1)
+	# (proposed in follow-line substate in stage 2 and 3)
+	move-forward
+	move-right
+	move-left
+
+	follow-line (leads to substate)
+		move-180
+		swap-colors
+
+
+substate follow-line
+	^name follow-line # automatically elaborated from superstate.operator
+
+	# elaborated from topstate
+	^left-motor-port
+	^right-motor-port 
+	^color-left
+	^color-right
+	^color-forward
+
+	

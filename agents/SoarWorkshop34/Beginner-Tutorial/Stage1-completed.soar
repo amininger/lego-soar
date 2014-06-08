@@ -3,7 +3,7 @@
 # These are provided for you.
 ###################################################
 
-source ../Common-Include.soar
+source ../Common-Include/Common-Include_source.soar
 
 ###################################################
 # This file contains the following operators:
@@ -49,26 +49,20 @@ sp {Stage1*apply*move-forward
 	(<out>	^motor <left>
 			^motor <right>)
 	# For the "left" motor identifier, set the port
-	# to be the left motor's port.  Also, create an
-	# identifier named "start" for setting the power
-	# level and direction of the motor.
+	# to be the left motor's port.  Also, set
+			# the direction and power
+			# Remember that to move the robot forward
+	 		# the motors turn backward
 	(<left>	^port <left-port>
-			^start <left-start>)
+					^set-direction backward
+					^set-power 40)
 	# Do the same thing for the right motor but with
 	# the right motor's port
 	(<right>	^port <right-port>
-				^start <right-start>)
-	# Since this is the move-forward operator, set the
-	# direction to be backward for both the left and
-	# right motor.  This means that we consider the
-	# side of the robot without the IR sensor the
-	# front.  Also, set the power to be 40% of the total
-	# available power.
-	(<left-start>	^direction backward
-					^power 40)
-	(<right-start>	^direction backward
-					^power 40)
+					 ^set-direction backward
+					 ^set-power 40)
 }
+
 
 ###################################################
 #	move-left operator
@@ -100,13 +94,11 @@ sp {Stage1*apply*move-left
 	(<out>	^motor <left>
 			^motor <right>)
 	(<left>	^port <left-port>
-			^start <left-start>)
+					^set-direction forward
+					^set-power 40)
 	(<right>	^port <right-port>
-				^start <right-start>)
-	(<left-start>	^direction forward
-					^power 40)
-	(<right-start>	^direction backward
-					^power 40)
+					 ^set-direction backward
+					 ^set-power 40)
 }
 
 ###################################################
@@ -139,11 +131,9 @@ sp {Stage1*apply*move-right
 	(<out>	^motor <left>
 			^motor <right>)
 	(<left>	^port <left-port>
-			^start <left-start>)
+					^set-direction backward
+					^set-power 40)
 	(<right>	^port <right-port>
-				^start <right-start>)
-	(<left-start>	^direction backward
-					^power 40)
-	(<right-start>	^direction forward
-					^power 40)
+					 ^set-direction forward
+					 ^set-power 40)
 }
