@@ -57,6 +57,30 @@ sp {Stage3*apply*swap-colors
 			^did-swap YES)
 }
 
+# Once we no longer are in the red swap zone,
+# we need to remove the flags we created with
+# o-support.  These flags are "did-swap",
+# "left-motor-sensor-value", and
+# "right-motor-sensor-value".  Also, when these
+# flags are removed, the i-supported structures
+# "has-rotated-180", "left-motor-sensor-value-1000",
+# and "right-motor-sensor-value-1000" will go away
+# because the elaboration that created them will no
+# longer match.
+sp {Stage3*apply*swap-colors*remove-flags
+	(state <s>	^operator <o>
+				^did-swap YES
+				^left-motor-sensor-value <lvalue>
+				^right-motor-sensor-value <rvalue>
+				^has-rotated-180 YES
+				^color-sensor-value <> red)
+-->
+	(<s>	^did-swap YES -
+			^left-motor-sensor-value <lvalue> -
+			^right-motor-sensor-value <rvalue> -
+			^has-rotated-180 YES -)
+}
+
 ###################################################
 #	move-180 operator
 ###################################################
@@ -65,9 +89,9 @@ sp {Stage3*apply*swap-colors
 # rotate 180 degrees
 sp {Stage3*propose*move-180
 	(state <s>	^name follow-line
+						 ^io.input-link <il>
 				^superstate <ss>)
 	(<ss>	^did-swap YES
-			^io.input-link <il>
 			-^has-rotated-180)
 -->
 	(<s>	^operator <o> +)
@@ -94,18 +118,18 @@ sp {Stage3*preference*move-180*better-than-other-movements
 # rotate 180 we have to wait for a rotation of 1000.
 sp {Stage3*apply*move-180*track-motors
 	(state <s>	^operator.name move-180
+						 ^io.input-link <il>
 				^superstate <ss>)
-	(<ss>	^io.input-link <il>
-			^left-motor-port <lmp>
+  (<ss> ^left-motor-port <lmp>
 			^right-motor-port <rmp>
 			-^left-motor-sensor-value
 			-^right-motor-sensor-value)
 	(<il>	^motor <left-motor>
 			^motor <right-motor>)
 	(<left-motor>	^port <lmp>
-					^sensor <left-value>)
+					^amount-rotated <left-value>)
 	(<right-motor>	^port <rmp>
-					^sensor <right-value>)
+					^amount-rotated <right-value>)
 -->
 	(<ss>	^left-motor-sensor-value (+ <left-value> 1000)
 			^right-motor-sensor-value (+ <right-value> 1000))
@@ -116,8 +140,9 @@ sp {Stage3*apply*move-180*track-motors
 # one could choose to rotate right.
 sp {Stage3*apply*move-180*start-movement
 	(state <s>	^operator.name move-180
+						 ^io.output-link <out>
 				^superstate <ss>)
-	(<ss>	^io.output-link <out>
+	(<ss> ^left-motor-port <left-port>
 			^left-motor-port <left-port>
 			^right-motor-port <right-port>)
 -->
@@ -162,7 +187,6 @@ sp {Stage3*elaboration*move-180*has-finished
 sp {Stage3*propose*move-forward-until-done-swapping
 	(state <s>	^name follow-line
 				^superstate.has-rotated-180 YES
-				^color-forward <value>
 				^color-sensor-value red)
 -->
 	(<s> ^operator <o> +)

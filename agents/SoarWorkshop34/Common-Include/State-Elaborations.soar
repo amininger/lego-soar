@@ -3,6 +3,7 @@
 # File: Common-Include/State-Elaborations.soar
 # Contains:
 #   Elaborate substate name
+#   Elaborate substate io
 #
 ###############################################################
 
@@ -11,5 +12,12 @@ sp {Common-Include*State-Elaborations*elaborate*substate*name
 	(state <s> ^superstate.operator.name <name>)
 -->
 	(<s> ^name <name>)
+}
+
+# Elaborate the io link onto a substate
+sp {Common-Include*State-Elaborations*elaborate*substate*io
+	(state <s> ^superstate.io <io>)
+-->
+	(<s> ^io <io>)
 }
 

@@ -47,6 +47,10 @@ public:
 
 	void updateSoar();
 
+	char* getInChannel(){
+		return inChannel;
+	}
+
 private:
 	static void* lcmliteThreadFunction(void* arg);
 
@@ -77,6 +81,8 @@ private:
 
 	char inChannel[8];
 	char outChannel[8];
+
+
 };
 
 

@@ -62,6 +62,10 @@ void* Ev3LcmCommunicator::lcmliteThreadFunction(void* arg){
 
 void Ev3LcmCommunicator::lcmHandler(lcmlite_t* lcm, const char* channel, const void* buf, int buf_len, void* user){
 	Ev3LcmCommunicator* comm = (Ev3LcmCommunicator*)user;
+	if(strcmp(comm->getInChannel(), channel) != 0){
+		return;
+	}
+
 	IntBuffer params;
 	uint offset = 0;
 	const uchar* charBuff = (const uchar*)buf;

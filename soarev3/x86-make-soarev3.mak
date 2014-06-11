@@ -15,7 +15,7 @@ FLAGS=-shared -fpic
 
 INCLUDEPATH=-I$(EV3)/soarev3 -I$(EV3)/lcmlite -I$(EV3)/include -I$(SOAR_HOME)/include 
 LIBRARYPATH=-L$(SOAR_HOME) -L$(EV3)/lib/x86
-LIBRARIES=-llcmlite -lSoar -ldl -lpthread
+LIBRARIES=-llcmlite -lSoar -ldl -lrt -lpthread
 
 all:: clean $(OBJECTS) $(PROGRAM)
 

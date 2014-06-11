@@ -20,11 +20,11 @@
 # Proposal Rule
 sp {Common-Include*Stop-Agent*propose*toggle-robot-mode
 	(state <s>	^name line-follower
-             ^io.input-link.brick.<button-name> <button>
+						 ^io.input-link.brick.<button-name> <button>
 				    ^mode <cur-mode> )
 	(<button>	^type button
-            ^prev-state released
-            ^cur-state pressed)
+            ^previous-state released
+            ^current-state pressed)
 -->
 	(<s>	^operator <o> + = >)
 	(<o>	^name toggle-robot-mode

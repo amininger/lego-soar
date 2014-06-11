@@ -81,7 +81,7 @@ static void deliver_packet(lcmlite_t *lcm, const char *channel, const void *buf,
                     break;
 
                 // proceed to the next letter
-                pos++;
+            //    pos++;
                 continue;
             }
 

@@ -108,7 +108,7 @@ void LcmliteWrapper::subscribe(char* channel, void (*callback)(lcmlite_t* lcm, c
 		return;
 	}
 	int i = numSubscriptions++;
-	subscriptions[i].channel = new char[strlen(channel)];
+	subscriptions[i].channel = new char[strlen(channel)+1];
 	strcpy(subscriptions[i].channel, channel);
 	subscriptions[i].callback = callback;
 	subscriptions[i].user = user;

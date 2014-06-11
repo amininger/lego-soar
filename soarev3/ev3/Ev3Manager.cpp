@@ -33,7 +33,7 @@ void Ev3Manager::writeStatus(StatusList& statuses){
 	statuses.push_back(this->getStatus());
 	statuses.push_back(brick->getStatus());
 	statuses.push_back(inputDevices->getStatus());
-	statuses.push_back(outputDevices->getStatus());
+//	statuses.push_back(outputDevices->getStatus());
 }
 
 void Ev3Manager::executeEv3Command(Ev3Command* command){

@@ -21,12 +21,7 @@ source ../Common-Include/Common-Include_source.soar
 
 sp {Stage2*propose*follow-line
 	(state <s>	^name line-follower
-				^mode follow
-				^left-motor-port <lmp>
-				^right-motor-port <rmp>
-				^color-left <cl>
-				^color-right <cr>
-				^color-forward <cf>)
+				^mode follow)
 -->
 	(<s>	^operator <o> +)
 	(<o>	^name follow-line)

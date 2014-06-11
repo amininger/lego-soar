@@ -135,6 +135,12 @@ void SoarManager::readSensorsStatus(IntBuffer& status){
 			offset += 1;
 			break;
 		case SENSOR_CAT_SERIAL:
+			if(inputs[port] != 0 && type == 125){
+				uint offsetCopy = offset;
+				inputs[port]->readStatus(status, offsetCopy);
+				offset += 3;
+				break;
+			}
 		case SENSOR_CAT_ANALOG:
 			if(inputs[port] != 0 && inputs[port]->getDeviceType() != type){
 				delete inputs[port];

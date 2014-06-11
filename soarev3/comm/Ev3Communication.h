@@ -47,6 +47,10 @@ public:
 
 	void start();
 
+	char* getInChannel(){
+		return inChannel;
+	}
+
 private:
 	static void* lcmliteThreadFunction(void*);
 

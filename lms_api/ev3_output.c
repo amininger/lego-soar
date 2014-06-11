@@ -1438,7 +1438,7 @@ void RotateMotorEx(byte Outputs, char Speed, int Angle, short Turn, bool Sync, b
   bool busy;
   while (true)
   {
-    Wait(MS_2); // 2ms between checks
+    //Wait(MS_2); // 2ms between checks
     busy = false;
     OutputTest(Outputs, &busy);
     if (!busy) break;
