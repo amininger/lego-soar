@@ -20,12 +20,12 @@ sp {Common-Include*Sensors*elaborate*color-sensor
 
 # If this is the follow-line substate, elaborate the
 # color sensor value from the top state to this substate
-sp {Common-Include*Sensors*elaborate*color-sensor*substate
-   (state <s>	^name follow-line
-				^superstate.color-sensor-value <value>)
--->
-   (<s>	^color-sensor-value <value>)
-}
+#sp {Common-Include*Sensors*elaborate*color-sensor*substate
+#   (state <s>	^name follow-line
+#				^superstate.color-sensor-value <value>)
+#-->
+#   (<s>	^color-sensor-value <value>)
+#}
 
 ###################################################
 #	change-color-mode operator
@@ -100,4 +100,42 @@ sp {Common-Include*Sensors*apply*create-touch-sensor
   (<out> ^manager.create-sensor <create>)
   (<create> ^type touch
              ^port <port>)
+}
+###################################################
+#	change-remote-mode operator
+#
+#	If the remote sensor is not in "beacon" mode,
+#	this will be proposed and selected.  When it
+#	applies it will put on the output link the
+#	command to set the mode to "beacon"
+###################################################
+
+# Proposal Rule
+sp {Common-Include*Sensors*propose*change-remote-mode
+   (state <s>	^name line-follower
+				^io.input-link.sensor <remote>)
+   (<remote>	^type ir-remote
+			^port <port>
+			^mode <> beacon)
+-->
+   (<s>	^operator <o> + > =)	# We should always do this
+							# as this is a critical
+							# operator to the program
+							# working as we intend.
+   (<o>	^name change-remote-mode
+		^port <port>)
+}
+
+# Apply rule
+# Create the command on the output link
+sp {Common-Include*Sensors*apply*change-remote-mode
+   (state <s> ^name line-follower
+              ^operator <o>
+              ^io.output-link <out>)
+   (<o> ^name change-remote-mode
+        ^port <port>)
+-->
+   (<out> ^sensor <sensor>)
+   (<sensor> ^port <port>
+             ^set-mode beacon)
 }

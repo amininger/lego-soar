@@ -1,0 +1,24 @@
+
+# Souce file "elaborations.soar"
+source elaborations.soar
+
+# Souce file "turn-left.soar"
+source turn-left.soar
+
+# Souce file "turn-right.soar"
+source turn-right.soar
+
+# Souce file "turn-around.soar"
+source turn-around.soar
+
+# Souce file "finish-turn-to-direction.soar"
+source finish-turn-to-direction.soar
+
+# Souce file "propose-turn-to-direction.soar"
+source propose-turn-to-direction.soar
+
+# Souce file "find-black.soar"
+source find-black.soar
+
+# Souce file "drive-forward.soar"
+source drive-forward.soar

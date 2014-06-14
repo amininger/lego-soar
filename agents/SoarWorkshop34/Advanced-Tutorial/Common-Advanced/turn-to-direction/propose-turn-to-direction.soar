@@ -1,0 +1,10 @@
+sp {line-follower*propose*turn-to-direction
+	(state <s> ^name line-follower
+						 ^mode follow
+						 ^selected-direction <dir>)
+-->
+	(<s> ^operator <o> + >)
+	(<o> ^name turn-to-direction
+			 ^direction <dir>)
+	(write |Turn to Direction | <dir> (crlf))
+}

@@ -1,0 +1,35 @@
+
+sp {navigation*line-follower*apply*init-agent*create*direction-map
+	(state <s> ^operator.name init-agent)
+-->
+	(<s> ^direction-map <d>)
+	(<d> ^direction <north> <south> <east> <west>)
+	(<north> ^name north
+					 ^forward <north>
+					 ^backward <south>
+					 ^left <west> 
+					 ^right <east>
+					 ^color-left brown
+					 ^color-right white)
+	(<east> ^name east
+					^forward <east>
+					^backward <west>
+					^left <north>
+					^right <south>
+					^color-left brown
+					^color-right white)
+	(<south> ^name south
+					 ^forward <south>
+					 ^backward <north>
+					 ^left <east>
+					 ^right <west>
+					 ^color-left white
+					 ^color-right brown)
+	(<west> ^name west
+					^forward <west>
+					^backward <east>
+					^left <south>
+					^right <north>
+					^color-left white
+					^color-right brown)
+}

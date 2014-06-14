@@ -1,0 +1,9 @@
+sp {Common-Advanced*prefer*toggle-robot-mode*over*turn-to-direction
+	(state <s> ^name line-follower
+						 ^operator <o1> +
+						 ^operator <o2> +)
+	(<o1> ^name toggle-robot-mode)
+	(<o2> ^name turn-to-direction)
+-->
+	(<s> ^operator <o1> > <o2>)
+}

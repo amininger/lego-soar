@@ -1,0 +1,146 @@
+###################################################
+# This file contains the following operators:
+#	follow-line
+#	move-left
+#	move-right
+#	move-forward
+#
+# This should be a total of nine rules
+###################################################
+
+###################################################
+#	follow-line operator
+###################################################
+
+sp {Common-Advanced*top-state*propose*follow-line
+	(state <s>	^name line-follower
+            ^color-type path
+			^mode follow)
+-->
+	(<s> ^operator <o> +)
+	(<o> ^name follow-line)
+}
+
+###################################################
+#	elaborations
+###################################################
+
+sp {Common-Advanced*follow-line*elaboration*copy-substate-structures
+	(state <s>	^name follow-line
+				^superstate <ss>)
+	(<ss>	^name line-follower
+			^left-motor-port <lmp>
+			^right-motor-port <rmp>
+			^color-left <cl>
+			^color-right <cr>
+			^color-forward <cf>
+   			^color-sensor-value <val>
+      		^io <io>)
+-->
+	(<s>	^left-motor-port <lmp>
+			^right-motor-port <rmp>
+			^color-left <cl>
+			^color-right <cr>
+			^color-forward <cf>
+  			^color-sensor-value <val> 
+     		^io <io>)
+}
+
+###################################################
+#	move-forward operator
+###################################################
+
+# Propose the move-forward operator if the current
+# detected color sensor value is the forward value
+# and our mode is "follow"
+sp {Common-Advanced*follow-line*propose*move-forward
+	(state <s>	^name follow-line
+				^color-forward <value>
+				^color-sensor-value <value>)
+-->
+	(<s> ^operator <o> +)
+	(<o> ^name move-forward)
+}
+
+# Apply the move-forward operator if we have the
+# move-forward operator selected, an output link,
+# a left motor port, and a right motor port.
+sp {Common-Advanced*follow-line*apply*move-forward
+	(state <s>	^name follow-line
+            	^operator.name move-forward
+				^io.output-link <out>
+				^left-motor-port <left-port>
+				^right-motor-port <right-port>)
+-->
+	# Create a command for each motor on the output
+	# link
+	(<out>	^motor <left>
+			^motor <right>)
+	(<left>	^port <left-port>
+					^set-direction backward
+					^set-power 40)
+	(<right>	^port <right-port>
+					 ^set-direction backward
+					 ^set-power 40)
+}
+
+###################################################
+#	move-left operator
+###################################################
+
+sp {Common-Advanced*follow-line*propose*move-left
+	(state <s>	^name follow-line
+				^color-left <value>
+				^color-sensor-value <value>)
+-->
+	(<s> ^operator <o> +)
+	(<o> ^name move-left)
+}
+
+sp {Common-Advanced*follow-line*apply*move-left
+	(state <s>	^name follow-line
+            	^operator.name move-left
+				^io.output-link <out>
+				^left-motor-port <left-port>
+				^right-motor-port <right-port>)
+-->
+	(<out>	^motor <left>
+			^motor <right>)
+	(<left>	^port <left-port>
+					^set-direction forward
+					^set-power 40)
+	(<right>	^port <right-port>
+					 ^set-direction backward
+					 ^set-power 40)
+}
+
+###################################################
+#	move-right operator
+###################################################
+
+sp {Common-Advanced*follow-line*propose*move-right
+	(state <s>	^name follow-line
+				^color-right <value>
+				^color-sensor-value <value>)
+-->
+	(<s> ^operator <o> +)
+	(<o> ^name move-right)
+}
+
+sp {Common-Advanced*follow-line*apply*move-right
+	(state <s>	^name follow-line
+            	^operator.name move-right
+				^io.output-link <out>
+				^left-motor-port <left-port>
+				^right-motor-port <right-port>)
+-->
+	(<out>	^motor <left>
+			^motor <right>)
+	(<left>	^port <left-port>
+			^set-direction backward
+			^set-power 40)
+	(<right> ^port <right-port>
+			 ^set-direction forward
+			 ^set-power 40)
+}
+

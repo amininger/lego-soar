@@ -1,0 +1,45 @@
+
+
+sp {turn-to-direction*elaborate*superstate*info
+	(state <s> ^name turn-to-direction
+						 ^superstate <ss>)
+	(<ss> ^io <io>
+				^direction-map <map>
+				^current-direction <cur>
+				^color-sensor-value <color>
+				^color-type <color-type>
+				^left-motor-port <left-port>
+				^right-motor-port <right-port>)
+-->
+	(<s> ^io <io>
+				^direction-map <map>
+				^current-direction <cur>
+				^color-sensor-value <color>
+				^color-type <color-type>
+				^left-motor-port <left-port>
+				^right-motor-port <right-port>)
+}
+
+sp {turn-to-direction*elaborate*goal-direction
+	(state <s> ^name turn-to-direction
+						 ^superstate.operator.direction <dir>)
+-->
+	(<s> ^goal-direction <dir>)
+	(write |Goal Direction: | <dir> (crlf))
+}
+
+sp {turn-to-direction*elaborate*goal-heading
+	(state <s> ^name turn-to-direction
+						 ^current-direction <cur-dir>
+						 ^goal-direction <goal-dir>
+						 ^direction-map.direction <dir>)
+	(<dir> ^name <cur-dir>
+				 ^<heading>.name <goal-dir>)
+-->
+	(<s> ^goal-heading <heading>)
+	(write |Goal Heading: | <heading> (crlf))
+}
+
+
+
+

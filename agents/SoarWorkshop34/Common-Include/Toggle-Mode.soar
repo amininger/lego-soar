@@ -28,7 +28,7 @@ sp {Common-Include*Stop-Agent*propose*toggle-robot-mode
 -->
 	(<s>	^operator <o> + = >)
 	(<o>	^name toggle-robot-mode
-			^button <button>
+			 ^button <button-name> 
 			^mode <cur-mode>)
 }
 

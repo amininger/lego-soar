@@ -1,0 +1,20 @@
+sp {navigation*elaborate*color-type*path
+	(state <s> ^name line-follower
+				 ^color-sensor-value << black white brown >>)
+-->
+	(<s> ^color-type path)
+}
+
+sp {navigation*elaborate*color-type*junction
+	(state <s> ^name line-follower
+				 ^color-sensor-value << red yellow green blue >>)
+-->
+	(<s> ^color-type junction)
+}
+
+sp {navigation*monitor*color
+	(state <s> ^name line-follower
+				 ^color-sensor-value <color>)
+-->
+	(write |Color | <color> (crlf))
+}

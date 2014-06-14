@@ -1,0 +1,63 @@
+sp {turn-to-direction*propose*finish-turn-to-direction
+	(state <s> ^name turn-to-direction
+				 ^color-sensor-value black)
+-->
+	(<s> ^operator <o> +)
+	(<o> ^name finish-turn-to-direction)
+}
+
+sp {turn-to-direction*apply*finish-turn-to-direction*swap-colors
+	(state <s> ^name turn-to-direction
+				 ^operator.name finish-turn-to-direction
+				 ^superstate <ss>
+				 ^goal-direction <goal-dir>
+				 ^direction-map.direction <dir>)
+	(<dir> ^name <goal-dir>
+			 ^color-right <new-color-right>
+			 ^color-left <new-color-left>)
+	(<ss> ^color-left <old-color-left> <> <new-color-left>
+			^color-right <old-color-right>)
+-->
+	(<ss> ^color-left <old-color-left> -
+			^color-left <new-color-left>
+			^color-right <old-color-right> -
+			^color-right <new-color-right>)
+}
+
+sp {turn-to-direction*apply*finish-turn-to-direction*mark*new*direction
+	(state <s> ^name turn-to-direction
+				 ^operator.name finish-turn-to-direction
+				 ^superstate <ss>
+				 ^goal-direction <goal-dir>)
+	(<ss> ^current-direction {<cur-dir> <> <goal-dir>})
+-->
+	(<ss> ^current-direction <cur-dir> -
+			^current-direction <goal-dir>)
+}
+
+sp {turn-to-direction*apply*finish-turn-to-direction*remove*select-direction
+	(state <s> ^name turn-to-direction
+			 ^operator.name finish-turn-to-direction
+			 ^superstate <ss>)
+	(<ss> ^selected-direction <dir>)
+-->
+	(<ss> ^selected-direction <dir> -)
+}
+
+sp {turn-to-direction*apply*finish-turn-to-direction*remove*turn-goal
+	(state <s> ^name turn-to-direction
+				 ^operator.name finish-turn-to-direction
+				 ^superstate <ss>)
+	(<ss> ^turn-goal <goal>)
+-->
+	(<ss> ^turn-goal <goal> -)
+}
+
+sp {turn-to-direction*apply*finish-turn-to-direction*remove*turned
+	(state <s> ^name turn-to-direction
+				 ^operator.name finish-turn-to-direction
+				 ^superstate <ss>)
+	(<ss> ^turned <flag>)
+-->
+	(<ss> ^turned <flag> -)
+}

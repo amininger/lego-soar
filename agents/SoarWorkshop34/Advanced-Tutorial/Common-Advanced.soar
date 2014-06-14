@@ -1,6 +1,0 @@
-pushd Common-Advanced
-
-source Follow-Line-Create-Substate.soar
-source Follow-Line-Init-Substate.soar
-
-popd

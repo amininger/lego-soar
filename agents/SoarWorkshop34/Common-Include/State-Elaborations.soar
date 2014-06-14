@@ -15,9 +15,9 @@ sp {Common-Include*State-Elaborations*elaborate*substate*name
 }
 
 # Elaborate the io link onto a substate
-sp {Common-Include*State-Elaborations*elaborate*substate*io
-	(state <s> ^superstate.io <io>)
--->
-	(<s> ^io <io>)
-}
+#sp {Common-Include*State-Elaborations*elaborate*substate*io
+#	(state <s> ^superstate.io <io>)
+#-->
+#	(<s> ^io <io>)
+#}
 

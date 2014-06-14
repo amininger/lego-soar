@@ -1,0 +1,50 @@
+sp {turn-to-direction*propose*turn-left
+	(state <s> ^name turn-to-direction
+            ^goal-heading left
+           -^superstate.turned)
+-->
+	(<s> ^operator <o> + >)
+	(<o> ^name turn-left)
+}
+
+sp {turn-to-direction*apply*turn-left*send*commands
+	(state <s> ^name turn-to-direction
+				^operator.name turn-left
+				^left-motor-port <left-port>
+				^right-motor-port <right-port>
+				^io.output-link <out>)
+-->
+	(<out> ^motor <left> <right>)
+	(<left> ^port <left-port>
+			^set-direction forward
+			^set-power 25)
+	(<right> ^port <right-port>
+			^set-direction backward
+			 ^set-power 40)
+}
+
+sp {turn-to-direction*apply*turn-left*mark*turn-goal
+	(state <s> ^name turn-to-direction
+				^operator.name turn-left
+				^superstate <ss>
+				^right-motor-port <right-port>
+				^io.input-link.motor <right-motor>)
+	(<right-motor> ^port <right-port>
+					^amount-rotated <rot>)
+	(<ss> -^turn-goal)
+-->
+	(<ss> ^turn-goal (- <rot> 550))
+}
+
+sp {turn-to-direction*apply*turn-left*mark*turned
+	(state <s> ^name turn-to-direction
+				^operator.name turn-left
+				^superstate <ss>
+				^right-motor-port <right-port>
+				^io.input-link.motor <right-motor>)
+	(<right-motor> ^port <right-port>
+					^amount-rotated <cur-rot>)
+	(<ss> ^turn-goal { <goal-rot> > <cur-rot> })
+-->
+	(<ss> ^turned true)
+}
