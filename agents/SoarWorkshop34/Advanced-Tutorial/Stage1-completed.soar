@@ -1,25 +1,9 @@
 source ../Common-Include/Common-Include_source.soar
 
 source Common-Advanced/Common-Advanced_source.soar
+source Common-Advanced-Stage1.soar
 
-
-sp {Common-Advanced*apply*Init-Agent*set*current-direction
-   (state <s> ^operator.name init-agent)
--->
-   (<s> ^current-direction west)
-}
-
-sp {Common-Advanced*apply*Init-Agent*create*color-map
-   (state <s> ^operator.name init-agent)
--->
-   (<s> ^color-map <map>)
-   (<map> ^red north
-          ^yellow west
-          ^green east
-          ^blue south)
-}
-
-sp {Common-Advanced*propose*select-direction
+sp {Stage1*propose*select-direction
    (state <s> ^name line-follower
               ^color-type junction
              -^selected-direction
@@ -30,7 +14,7 @@ sp {Common-Advanced*propose*select-direction
         ^direction <dir>)
 }
 
-sp {Common-Advanced*apply*select-direction
+sp {Stage1*apply*select-direction
    (state <s> ^name line-follower
               ^operator <o>)
    (<o> ^name select-direction
@@ -39,7 +23,7 @@ sp {Common-Advanced*apply*select-direction
    (<s> ^selected-direction <dir>)
 }
 
-sp {Common-Advanced*prefer*right*color
+sp {Stage1*prefer*right*color
    (state <s> ^name line-follower
               ^operator <o> +
               ^color-sensor-value <color>
