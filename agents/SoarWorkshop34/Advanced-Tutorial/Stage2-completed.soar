@@ -1,15 +1,27 @@
-source ../Common-Include/Common-Include_source.soar
+source Stage1-completed.soar
 
-source Common-Advanced/Common-Advanced_source.soar
 source Common-Advanced-Stage2.soar
+
+sp {Stage2*apply*Init-Agent*init-smem
+   (state <s>	^operator.name init-agent
+				^smem.command <command>)
+-->
+   (<command>	^store <s1>)
+   (<s1>	^color-map <map>)
+   (<map> ^red west
+          ^yellow south
+          ^green north
+          ^blue east)
+}
 
 sp {Stage2*propose*query-for-direction
    (state <s> ^name line-follower
               ^color-type junction
 			 -^smem.command.query <q>
-              ^color-sensor-value <color>)
+              ^color-sensor-value <color>
+			 -^color-map.<color>)
 -->
-   (<s> ^operator <o> + =)
+   (<s> ^operator <o> + >)
    (<o> ^name query-for-direction
         ^direction-color <color>)
 }
@@ -25,36 +37,35 @@ sp {Stage2*apply*query-for-direction
    (<q>	^<color> <direction>)
 }
 
-sp {Stage2*propose*select-direction
+sp {Stage2*propose*add-to-color-map
 	(state <s>	^name line-follower
-				-^selected-direction
 				^smem.result <result>)
 	(<result>	^retrieved <r>
-				^success <query>)
-	(<query>	^<color> <unused>)
+				^success <q>)
+	(<q>	^<color> <unused>)
 	(<r>	^<color> <direction>)
 -->
-	(<s>	^operator <o> +)
-	(<o>	^name select-direction
+	(<s>	^operator <o> + >)
+	(<o>	^name add-to-color-map
+			^color <color>
 			^direction <direction>)
 }
 
-sp {Stage2*apply*select-direction
-   (state <s> ^name line-follower
-              ^operator <o>)
-   (<o> ^name select-direction
-        ^direction <dir>)
+sp {Stage2*apply*add-to-color-map
+	(state <s>	^operator <o>
+				^color-map <map>)
+	(<o>	^name add-to-color-map
+			^color <color>
+			^direction <direction>)
 -->
-   (<s> ^selected-direction <dir>)
+	(<map>	^<color> <direction>)
 }
 
-sp {Stage2*apply*select-direction*remove-smem-command
-   (state <s> ^name line-follower
-              ^operator <o>1`1
-			  ^smem.command <command>)
-   (<o> ^name select-direction
-        ^direction <dir>)
+sp {Stage2*apply*add-to-color-map*clean-up-smem
+	(state <s>	^operator <o>
+				^smem.command <command>)
+	(<o>	^name add-to-color-map)
 	(<command>	^query <q>)
 -->
-   (<command>	^query <q> -)
+	(<command>	^query <q> -)
 }
