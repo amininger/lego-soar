@@ -26,8 +26,11 @@ source ../Common-Include/Common-Include_source.soar
 # detected color sensor value is the forward value
 # and our mode is "follow"
 sp {Stage1*propose*move-forward
-	# Test for the conditions that lead to a proposal
-	# for move-forward.
+	# Conditions to test for:
+	#	name
+	#	mode
+	#	color-forward
+	#	color-sensor-value
 -->
 	# Create the operator here
 }
@@ -73,8 +76,11 @@ sp {Stage1*apply*move-forward
 #    to forward instead of backward.
 
 sp {Stage1*propose*move-left
-	# Test for the conditions that lead to a proposal
-	# for move-left.
+	# Conditions to test for:
+	#	name
+	#	mode
+	#	color-left
+	#	color-sensor-value
 -->
 	# Create the operator here
 }
@@ -108,8 +114,11 @@ sp {Stage1*apply*move-left
 #    to forward instead of backward.
 
 sp {Stage1*propose*move-right
-	# Test for the conditions that lead to a proposal
-	# for move-right.
+	# Conditions to test for:
+	#	name
+	#	mode
+	#	color-right
+	#	color-sensor-value
 -->
 	# Create the operator here
 }
