@@ -1,12 +1,28 @@
+############################################################
+#
+# file: Common-Advanced/turn-to-direction/turn-left.soar
+# contains:
+#   operator turn-left
+#     If the robot needs to head left
+#        (relative-direction = left)
+#     This will have the robot turn 90 degrees to the left
+#  
+############################################################
+
+# If the relative-direction is left and we haven't yet turned,
+#   then propose turn-left
 sp {turn-to-direction*propose*turn-left
 	(state <s> ^name turn-to-direction
-            ^goal-heading left
+            ^relative-direction left
            -^superstate.turned)
 -->
-	(<s> ^operator <o> + >)
+	(<s> ^operator <o> +)
 	(<o> ^name turn-left)
 }
 
+# If turn-left is selected, send the right commands to turn the robot left
+#   where the left motor moves forward and the right motor moves backward
+# The left is turning less than the right, so the robot will move a bit forward as well
 sp {turn-to-direction*apply*turn-left*send*commands
 	(state <s> ^name turn-to-direction
 				^operator.name turn-left
@@ -23,6 +39,8 @@ sp {turn-to-direction*apply*turn-left*send*commands
 			 ^set-power 40)
 }
 
+# If turn-left is selected, 
+#   then create a rotation goal for the right motor on the superstate
 sp {turn-to-direction*apply*turn-left*mark*turn-goal
 	(state <s> ^name turn-to-direction
 				^operator.name turn-left
@@ -36,6 +54,8 @@ sp {turn-to-direction*apply*turn-left*mark*turn-goal
 	(<ss> ^turn-goal (- <rot> 550))
 }
 
+# If the right-motor has turned more than the turn-goal (negative rotation)
+#   then create a turned flag on the superstate
 sp {turn-to-direction*apply*turn-left*mark*turned
 	(state <s> ^name turn-to-direction
 				^operator.name turn-left

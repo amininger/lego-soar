@@ -1,0 +1,15 @@
+############################################################
+#
+# file: Common-Advanced/turn-to-direction/elaborations.soar
+# contains:
+#   rules to give best preferences to 
+#     drive-forward, turn-left, turn-right, and turn-around
+############################################################
+
+sp {turn-to-direction*elaborate*best-preference*turning*rules
+   (state <s> ^name turn-to-direction
+              ^operator <o> +)
+   (<o> ^name << drive-forward turn-left turn-right turn-around >>)
+-->
+   (<s> ^operator <o> >)
+}

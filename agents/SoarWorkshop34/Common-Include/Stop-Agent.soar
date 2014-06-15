@@ -2,30 +2,12 @@
 #
 # File: Common-Include/Stop-Agent
 # Contains:
-#   stop operator
+#   code to handle ^action stop on an operator
 #  
 ###################################################
 
-###################################################
-#	stop operator
-#
-#	When there is a flag on the top state called
-#	"stop-agent" with value YES, this operator is
-#	proposed with best preference and selected to
-#	stop the robot.
-###################################################
-
-# Proposal Rule
-sp {Common-Include*Stop-Agent*propose*stop
-	(state <s>	^name line-follower
-				^stop-agent YES)
--->
-	(<s>	^operator <o> + >)
-	(<o>	^name stop)
-}
-
 # Apply rule
-
+#   for any operator with an ^action stop elaboration
 # This puts on the output link a command
 # to each motor to have it stop.  Even if
 # we know there isn't a motor connected to
@@ -36,11 +18,9 @@ sp {Common-Include*Stop-Agent*propose*stop
 
 sp {Common-Include*Stop-Agent*apply*stop
 	(state <s>	^name line-follower
-				^operator.name stop
-				^stop-agent YES
+				^operator.action stop
 				^io.output-link <out>)
 -->
-	(<s> ^stop-agent YES -)
   (<out>	^motor <A> <B> <C> <D>)
   (<A> ^port A 
         ^set-power 0)

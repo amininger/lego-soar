@@ -1,7 +1,7 @@
 sp {Common-Advanced*apply*Init-Agent*set*current-direction
    (state <s> ^operator.name init-agent)
 -->
-   (<s> ^current-direction west)
+   (<s> ^current-direction north)
 }
 
 smem --set learning on

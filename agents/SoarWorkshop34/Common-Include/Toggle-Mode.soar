@@ -32,6 +32,15 @@ sp {Common-Include*Stop-Agent*propose*toggle-robot-mode
 			^mode <cur-mode>)
 }
 
+sp {Common-Include*Toggle-Robot*elaborate*toggle-robot-mode*stop
+	(state <s> ^name line-follower
+						 ^operator <o> +)
+	(<o> ^name toggle-robot-mode
+			 ^mode follow)
+-->
+	(<o> ^action stop)
+}
+
 # Apply Rules
 
 # If we were just following, then the button press is to stop
@@ -43,8 +52,7 @@ sp {Common-Include*Stop-Agent*apply*toggle-robot-mode*toggle*mode*wait
 			^mode follow)
 -->
 	(<s>	^mode follow -
-			^mode wait
-			^stop-agent YES) # Create the flag to stop the agent
+			^mode wait)
 }
 
 # If we were just waiting, then the button press is to start following

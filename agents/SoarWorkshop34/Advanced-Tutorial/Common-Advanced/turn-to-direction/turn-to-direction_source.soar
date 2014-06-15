@@ -1,24 +1,56 @@
-
-# Souce file "elaborations.soar"
-source elaborations.soar
-
-# Souce file "turn-left.soar"
-source turn-left.soar
-
-# Souce file "turn-right.soar"
-source turn-right.soar
-
-# Souce file "turn-around.soar"
-source turn-around.soar
-
-# Souce file "finish-turn-to-direction.soar"
-source finish-turn-to-direction.soar
-
-# Souce file "propose-turn-to-direction.soar"
 source propose-turn-to-direction.soar
+# Contains:
+#   proposal rule for turn-to-direction
+#   Proposed when selected-direction is on the top state
 
-# Souce file "find-black.soar"
-source find-black.soar
+source elaborations.soar
+# Contains:
+#   Rules for elaborating the turn-to-direction substate
 
-# Souce file "drive-forward.soar"
+source preferences.soar
+# Contains:
+#   Rules for creating operator preferences
+#   Gives the drive-forward, turn-left, turn-right, and turn-around
+#     all best preferences
+
+
+############################################################
+# Operators for moving the robot to the right direction:
+
 source drive-forward.soar
+# Contains:
+#   operator drive-forward
+#     drives the robot forward until off the junction color
+
+source turn-left.soar
+# Contains:
+#   operator turn-left
+#     turns the robot 90 degrees to the left
+
+source turn-right.soar
+# Contains:
+#   operator turn-right
+#     turns the robot 90 degrees to the right
+
+source turn-around.soar
+# Contains:
+#   operator turn-around
+#     turns the robot 180 degrees around
+
+
+############################################################
+# Other operators
+
+source find-black.soar
+# Contains:
+#   operator rotate-left
+#     Once off the junction, if on the color-left, rotate-left
+#   operator rotate-right
+#     Once off the junction, if on the color-right, rotate-right
+#     
+
+source finish-turn-to-direction.soar
+# Contains:
+#   operator finish-turn-to-direction
+#     Once we've found the black path, we clean up the superstate
+#     (swap colors, change current-direction, remove flags)

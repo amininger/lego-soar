@@ -1,25 +1,38 @@
+############################################################
+#
+# file: Common-Advanced/turn-to-direction/elaborations.soar
+# contains:
+#   elaborate from superstate:
+#     ^io, ^direction-map, ^color-sensor-value, ^color-type
+#     ^left-motor-port, ^right-motor-port
+#   elaborate ^goal-direction
+#   elaborate ^relative-direction
+############################################################
 
-
+# elaborate necessary information from superstate
 sp {turn-to-direction*elaborate*superstate*info
 	(state <s> ^name turn-to-direction
 						 ^superstate <ss>)
 	(<ss> ^io <io>
-				^direction-map <map>
-				^current-direction <cur>
-				^color-sensor-value <color>
-				^color-type <color-type>
-				^left-motor-port <left-port>
-				^right-motor-port <right-port>)
+		  ^direction-map <map>
+			^current-direction <cur>
+			^color-sensor-value <color>
+			^color-type <color-type>
+			^left-motor-port <left-port>
+			^right-motor-port <right-port>)
 -->
 	(<s> ^io <io>
-				^direction-map <map>
-				^current-direction <cur>
-				^color-sensor-value <color>
-				^color-type <color-type>
-				^left-motor-port <left-port>
-				^right-motor-port <right-port>)
+			^direction-map <map>
+			^current-direction <cur>
+			^color-sensor-value <color>
+			^color-type <color-type>
+			^left-motor-port <left-port>
+			^right-motor-port <right-port>)
 }
 
+# elaborate goal-direction
+#   Gives the cardinal direction (NSEW) the robot selected
+#   (copied from superstate operator) 
 sp {turn-to-direction*elaborate*goal-direction
 	(state <s> ^name turn-to-direction
 						 ^superstate.operator.direction <dir>)
@@ -28,16 +41,19 @@ sp {turn-to-direction*elaborate*goal-direction
 	(write |Goal Direction: | <dir> (crlf))
 }
 
-sp {turn-to-direction*elaborate*goal-heading
+# elaborate relative-direction
+#   Gives the relative direction (left, right, forward, backward)
+#   The robot needs to go 
+sp {turn-to-direction*elaborate*relative-direction
 	(state <s> ^name turn-to-direction
 						 ^current-direction <cur-dir>
 						 ^goal-direction <goal-dir>
 						 ^direction-map.direction <dir>)
 	(<dir> ^name <cur-dir>
-				 ^<heading>.name <goal-dir>)
+				 ^<rel-dir>.name <goal-dir>)
 -->
-	(<s> ^goal-heading <heading>)
-	(write |Goal Heading: | <heading> (crlf))
+	(<s> ^relative-direction <rel-dir>)
+	(write |Relative Direction: | <rel-dir> (crlf))
 }
 
 

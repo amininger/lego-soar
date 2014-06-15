@@ -1,10 +1,19 @@
+############################################################
+#
+# file: Common-Advanced/turn-to-direction/propose-turn-to-direction.soar
+# contains:
+#   proposal rule for turn-to-direction
+############################################################
+
+# If there is a selected-direction on the topstate and the mode is follow
+#   Then propose turn-to-direction
 sp {line-follower*propose*turn-to-direction
 	(state <s> ^name line-follower
-						 ^mode follow
-						 ^selected-direction <dir>)
+				^mode follow
+				^selected-direction <dir>)
 -->
 	(<s> ^operator <o> + >)
 	(<o> ^name turn-to-direction
 			 ^direction <dir>)
-	(write |Turn to Direction | <dir> (crlf))
+	(write |propose turn-to-direction | <dir> (crlf))
 }

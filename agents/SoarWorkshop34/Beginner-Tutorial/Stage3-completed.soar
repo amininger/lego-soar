@@ -1,226 +1,239 @@
 ###################################################
 # This file contains the following operators:
-#	swap-colors
-#	follow-line
-#	move-left
-#	move-right
-#	move-forward
+#   record-red
+#   turn-180
+#   record-turn-complete
+#   swap-colors
+#   move-forward
+#   clear-flags
+###################################################
+
+source Stage2-completed.soar
+
+###################################################
 #
-# This file also contains the following rules:
-#	An apply rule for swapping the colors
-#	An apply rule for moving to the left after
-#		swapping the colors
-#	An apply rule to remove whether the swap occured
+# elaborations
 #
-# This should be a total of thirteen rules
-###################################################
+##################################################
+
+# Copy the left and right motor sensor values from the input-link
+sp {Stage3*elaborate*motor-sensor-values
+	(state <s> ^name line-follower
+						 ^right-motor-port <right-port>
+						 ^left-motor-port <left-port>
+						 ^io.input-link <il>)
+	(<il> ^motor <left>
+				^motor <right>)
+	(<left> ^port <left-port>
+					^amount-rotated <left-val>)
+	(<right> ^port <right-port>
+					 ^amount-rotated <right-val>)
+-->
+	(<s> ^left-motor-sensor-value <left-val>
+			 ^right-motor-sensor-value <right-val>)
+}
 
 ###################################################
-#	swap-colors operator & related rules
 #
-#	This is the most complicated series of rules
-#	that you will write as part of the beginner
-#	tutorial stages.  You will have to write two
-#	new operators, two elaborations, one extra
-#	proposal, and one extra apply rule.
-###################################################
+# preferences
+#
+##################################################
 
-###################################################
-#	swap-colors operator
-###################################################
-
-# Propose to swap colors when we have a color value of red
-sp {Stage3*propose*swap-colors
-	(state <s>	^name line-follower
-				^mode follow
-				^color-left <cl>
-				^color-right <cr>
-				^color-sensor-value red
-				-^did-swap)
+# Prefer all the operators related to turning 180
+#   over the follow-line operator
+sp {Stage3*prefer*180*operators*over*follow-line
+	(state <s> ^name line-follower
+						 ^operator <o1> +
+						 ^operator <o2> +)
+	(<o1> ^name << record-red turn-180 record-turn-complete swap-colors move-forward clear-flags >>)
+	(<o2> ^name follow-line)
 -->
-	(<s> ^operator <o> + >)
-	(<o> ^name swap-colors)
+	(<s> ^operator <o1> > <o2>)
 }
 
-# Swap the colors and add a flag to show that we
-# swapped
-sp {Stage3*apply*swap-colors
-	(state <s>	^color-left <left>
-				^color-right <right>
-				^operator.name swap-colors
-				-^did-swap)
+##################################################
+#
+# operator record-red
+#   when we see red, add a ^detected-red flag to topstate
+#
+#################################################
+
+sp {Stage3*propose*record-red
+	(state <s> ^name line-follower
+						 ^color-sensor-value red
+						 -^detected-red)
 -->
-	(<s>	^color-left <left> -
-			^color-left <right>
-			^color-right <right> -
-			^color-right <left>
-			^did-swap YES)
+	(<s> ^operator <o> +)
+	(<o> ^name record-red
+			 ^action stop)
 }
 
-# Once we no longer are in the red swap zone,
-# we need to remove the flags we created with
-# o-support.  These flags are "did-swap",
-# "left-motor-sensor-value", and
-# "right-motor-sensor-value".  Also, when these
-# flags are removed, the i-supported structures
-# "has-rotated-180", "left-motor-sensor-value-1000",
-# and "right-motor-sensor-value-1000" will go away
-# because the elaboration that created them will no
-# longer match.
-sp {Stage3*apply*swap-colors*remove-flags
-	(state <s>	^operator <o>
-				^did-swap YES
-				^left-motor-sensor-value <lvalue>
-				^right-motor-sensor-value <rvalue>
-				^has-rotated-180 YES
-				^color-sensor-value <> red)
+sp {Stage3*apply*record-red
+	(state <s> ^name line-follower
+						 ^operator.name record-red)
 -->
-	(<s>	^did-swap YES -
-			^left-motor-sensor-value <lvalue> -
-			^right-motor-sensor-value <rvalue> -
-			^has-rotated-180 YES -)
+	(<s> ^detected-red true)
 }
 
 ###################################################
-#	move-180 operator
+#
+# operator turn-180
+#  When the robot has detected red, it must first rotate 180
+#
 ###################################################
 
-# After we have swapped the colors, propose to
-# rotate 180 degrees
-sp {Stage3*propose*move-180
-	(state <s>	^name follow-line
-						 ^io.input-link <il>
-				^superstate <ss>)
-	(<ss>	^did-swap YES
-			-^has-rotated-180)
+sp {Stage3*propose*turn-180
+	(state <s> ^name line-follower
+						 ^detected-red true
+						 -^turn-complete)
 -->
-	(<s>	^operator <o> +)
-	(<o>	^name move-180)
-}
-
-# This takes care of an edge case where the move-180
-# operator and moev-forward operator are proposed
-# at the same time, we still want to do the 180 
-# because otherwise our flags are never cleared
-# and we can no longer swap colors.
-sp {Stage3*preference*move-180*better-than-other-movements
-	(state <s>	^operator <o1> +
-				^operator <o2> +)
-	(<o1>	^name move-180)
-	(<o2>	^name <> move-180)
--->
-	(<s>	^operator <o1> > <o2>)
-}
-
-# Keep track of the sensor data we get back from
-# the motors which is some kind of rotation value.
-# Approximately a 500 change is 90 degrees, so to
-# rotate 180 we have to wait for a rotation of 1000.
-sp {Stage3*apply*move-180*track-motors
-	(state <s>	^operator.name move-180
-						 ^io.input-link <il>
-				^superstate <ss>)
-  (<ss> ^left-motor-port <lmp>
-			^right-motor-port <rmp>
-			-^left-motor-sensor-value
-			-^right-motor-sensor-value)
-	(<il>	^motor <left-motor>
-			^motor <right-motor>)
-	(<left-motor>	^port <lmp>
-					^amount-rotated <left-value>)
-	(<right-motor>	^port <rmp>
-					^amount-rotated <right-value>)
--->
-	(<ss>	^left-motor-sensor-value (+ <left-value> 1000)
-			^right-motor-sensor-value (+ <right-value> 1000))
+	(<s> ^operator <o> +)
+	(<o> ^name turn-180)
 }
 
 # Start the rotation.  Arbitrarily chose to start by
 # rotating left.  However, because we're rotating 180
 # one could choose to rotate right.
-sp {Stage3*apply*move-180*start-movement
-	(state <s>	^operator.name move-180
+sp {Stage3*apply*turn-180*motor-commands
+	(state <s>	^name line-follower
+						 ^operator.name turn-180
 						 ^io.output-link <out>
-				^superstate <ss>)
-	(<ss> ^left-motor-port <left-port>
-			^left-motor-port <left-port>
-			^right-motor-port <right-port>)
+						 ^left-motor-port <left-port>
+						 ^right-motor-port <right-port>)
 -->
 	(<out>	^motor <left>
 			^motor <right>)
 	(<left>	^port <left-port>
 					^set-direction forward
-					^power 40)
+					^set-power 40)
 	(<right> ^port <right-port>
 					 ^set-direction backward
 					 ^set-power 40)
 }
 
-# An elaboration to create a flag on the state when
-# we are done rotating
-sp {Stage3*elaboration*move-180*has-finished
-	(state <s>	^name line-follower
-				^io.input-link <il>
-				^left-motor-sensor-value <left-value>
-				^right-motor-sensor-value <right-value>
-				^left-motor-port <lmp>
-				^right-motor-port <rmp>)
-	(<il>	^motor <left-motor>
-			^motor <right-motor>)
-	(<left-motor>	^port <lmp>
-					^amount-rotated >= <left-value>)
-	(<right-motor>	^port <rmp>
-					^amount-rotated <= <right-value>)
+# Record the desired sensor value for having turned 180 degrees
+sp {Stage3*apply*turn-180*record*180-right-motor-sensor-value
+	(state <s> ^name line-follower
+						 ^operator.name turn-180
+						 -^180-right-motor-sensor-value
+						 ^right-motor-sensor-value <right-val>)
 -->
-	(<s>	^has-rotated-180 YES)
+	(<s> ^180-right-motor-sensor-value (- <right-val> 1000))
 }
 
-###################################################
-#	move-forward proposal
-###################################################
+##################################################
+#
+# operator record-turn-complete
+#
+##################################################
 
-# When we are done rotating we want to move forward
-# until we hit another color which isn't red,
-# in this case we can just repurpose the
-# move-forward operator we wrote earlier in Stage 1
-# and 2.
-sp {Stage3*propose*move-forward-until-done-swapping
-	(state <s>	^name follow-line
-				^superstate.has-rotated-180 YES
-				^color-sensor-value red)
+# If the right motor sensor value is greater than the 180 value
+#   Then propose record-turn-complete
+sp {Stage3*propose*record-turn-complete
+	(state <s> ^name line-follower
+						 ^180-right-motor-sensor-value <desired-val>
+						 ^right-motor-sensor-value <= <desired-val>
+						 -^turn-complete)
+-->
+	(<s> ^operator <o> + >)
+	(<o> ^name record-turn-complete)
+}
+
+# If the record-turn-complete operator is selected
+#   Then add the turn-complete true flag to the topstate
+sp {Stage3*apply*record-turn-complete
+	(state <s> ^name line-follower
+						 ^operator.name record-turn-complete)
+-->
+	(<s> ^turn-complete true)
+}
+
+##################################################
+#
+# operator swap-colors
+#
+##################################################
+
+# If we have finished turning and have not yet swapped colors,
+#   Then propose swap colors
+sp {Stage3*propose*swap-colors
+	(state <s> ^name line-follower
+						 ^turn-complete true
+						 -^swapped-colors true)
+-->
+	(<s> ^operator <o> +)
+	(<o> ^name swap-colors
+			 ^action stop)
+}
+
+# If the swap-colors operator is selected
+#   Then exchange color-left and color-right
+#     and add swapped-colors true to the topstate
+sp {Stage3*apply*swap-colors
+	(state <s> ^name line-follower
+						 ^operator.name swap-colors
+						 ^color-left <left>
+						 ^color-right <right>)
+-->
+	(<s> ^color-left <left> -
+			 ^color-left <right>
+			 ^color-right <right> -
+			 ^color-right <left>
+			 ^swapped-colors true)
+}
+
+##################################################
+#
+# operator move-forward
+#
+##################################################
+
+# If we have swapped the colors and are still on red,
+#   propose move-forward
+sp {Stage3*propose*move-forward
+	(state <s> ^name line-follower
+						 ^swapped-colors true
+						 ^color-sensor-value red)
 -->
 	(<s> ^operator <o> +)
 	(<o> ^name move-forward)
 }
 
-###################################################
-#	swap-colors remove flags
-###################################################
+# Application rule already coded in Stage2-complete.soar
 
-# Once we no longer are in the red swap zone,
-# we need to remove the flags we created with
-# o-support.  These flags are "did-swap",
-# "left-motor-sensor-value", and
-# "right-motor-sensor-value".  Also, when these
-# flags are removed, the i-supported structures
-# "has-rotated-180", "left-motor-sensor-value-1000",
-# and "right-motor-sensor-value-1000" will go away
-# because the elaboration that created them will no
-# longer match.
-sp {Stage3*apply*swap-colors*remove-flags
-	(state <s>	^operator <o>
-				^did-swap YES
-				^left-motor-sensor-value <lvalue>
-				^right-motor-sensor-value <rvalue>
-				^color-sensor-value <> red)
+
+##################################################
+#
+# operator clear-flags 
+#
+##################################################
+
+# If we have swapped colors and are no longer on red,
+#   Then propose clear-flags
+sp {Stage3*propose*clear-flags
+	(state <s> ^name line-follower
+						 ^color-sensor-value <> red
+						 ^swapped-colors true)
 -->
-	(<s>	^did-swap YES -
-			^left-motor-sensor-value <lvalue> -
-			^right-motor-sensor-value <rvalue> -)
+	(<s> ^operator <o> + >)
+	(<o> ^name clear-flags)
 }
 
-# Instead of copying the rules here, since they do
-# not change between stages now, we're going to
-# source them in
+# If the clear-flags operator is selected
+#   Then remove the following flags from the topstate
+#    detected-red, 180-right-motor-sensor-value, 
+#    turn-complete, swapped-colors
+sp {Stage3*apply*clear-flags
+	(state <s> ^name line-follower
+						 ^operator.name clear-flags
+						 ^detected-red <dr>
+						 ^180-right-motor-sensor-value <rmsv>
+						 ^turn-complete <tc>
+						 ^swapped-colors <sc>)
+-->
+	(<s> ^detected-red <dr> -
+			 ^180-right-motor-sensor-value <rmsv> -
+			 ^turn-complete <tc> -
+			 ^swapped-colors <sc> -)
+}
 
-source Stage2-completed.soar

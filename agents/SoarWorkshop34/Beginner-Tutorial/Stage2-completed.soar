@@ -31,34 +31,21 @@ sp {Stage2*propose*follow-line
 ##	follow-line*init-substate operator
 ####################################################
 #
-#sp {Stage2*propose*follow-line*init-substate
-#	(state <s>	-^name
-#				^attribute operator
-#				^impasse no-change
-#				^superstate <ss>)
-#	(<ss>	^name line-follower)
-#-->
-#	(<s>	^operator <o> +)
-#	(<o>	^name follow-line*init-substate)
-#}
-#
-#sp {Stage2*apply*follow-line*init-substate
-#	(state <s>	^operator.name follow-line*init-substate)
-#-->
-#	(<s>	^name follow-line)
-#}
-
 sp {Stage2*elaboration*copy-substate-structures
 	(state <s>	^name follow-line
 				^superstate <ss>)
 	(<ss>	^name line-follower
+				^io <io>
+				^color-sensor-value <color>
 			^left-motor-port <lmp>
 			^right-motor-port <rmp>
 			^color-left <cl>
 			^color-right <cr>
 			^color-forward <cf>)
 -->
-	(<s>	^left-motor-port <lmp>
+	(<s>	^io <io>
+			 ^color-sensor-value <color>
+			 ^left-motor-port <lmp>
 			^right-motor-port <rmp>
 			^color-left <cl>
 			^color-right <cr>

@@ -16,6 +16,7 @@ sp {Common-Include*Sensors*elaborate*color-sensor
 			^value <color-value>)
 -->
    (<s>	^color-sensor-value <color-value>)
+	(write |Color Sensor = | <color-value> (crlf))
 }
 
 # If this is the follow-line substate, elaborate the

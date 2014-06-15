@@ -1,0 +1,34 @@
+# There is a mapping from direction to color directions
+#  (To go north, brown is on your right, for south it's on the left)
+
+# This makes sure the color-left and color-right are accurate for the current-direction
+
+sp {Common-Advanced*line-follower*propose*change-color-directions
+	(state <s> ^name line-follower
+						 ^color-left <color-left>
+						 ^current-direction <cur-dir>
+						 ^direction-map.direction <dir>)
+	(<dir> ^name <cur-dir>
+				 ^color-left <> <color-left>)
+-->
+	(<s> ^operator <o> + >)
+	(<o> ^name change-color-direction)
+}
+
+sp {Common-Advanced*line-follower*apply*change-color-directions
+	(state <s> ^name line-follower
+						 ^operator.name change-color-direction
+						 ^color-left <old-color-left>
+						 ^color-right <old-color-right>
+						 ^current-direction <cur-dir>
+						 ^direction-map.direction <dir>)
+	(<dir> ^name <cur-dir>
+				 ^color-left <new-color-left>
+				 ^color-right <new-color-right>)
+-->
+	(<s> ^color-left <old-color-left> -
+			 ^color-left <new-color-left>
+			 ^color-right <old-color-right> -
+			 ^color-right <new-color-right>)
+}
+

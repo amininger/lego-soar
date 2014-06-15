@@ -1,4 +1,16 @@
 
+
+# This map is useful for knowing how to turn in the environment
+# Each of the 4 directions has the following structure:
+# <dir> ^name << north south east west >>
+#       ^forward <forward-dir>   # The direction you face if you go forward
+#       ^backward <backward-dir> # The direction you face if you turn around
+#       ^left <left-dir>   		 # The direction you face if you turn left
+#       ^right <right-dir>   	 # The direction you face if you turn right
+#       ^color-left << brown white >>  # Tells if you are heading in this direction what color means turn left
+#       ^color-right << brown white >> # Tells if you are heading in this direction what color means turn right
+#
+
 sp {navigation*line-follower*apply*init-agent*create*direction-map
 	(state <s> ^operator.name init-agent)
 -->
@@ -9,27 +21,27 @@ sp {navigation*line-follower*apply*init-agent*create*direction-map
 					 ^backward <south>
 					 ^left <west> 
 					 ^right <east>
-					 ^color-left brown
-					 ^color-right white)
+					 ^color-left white
+					 ^color-right brown)
 	(<east> ^name east
 					^forward <east>
 					^backward <west>
 					^left <north>
 					^right <south>
-					^color-left brown
-					^color-right white)
+					^color-left white
+					^color-right brown)
 	(<south> ^name south
 					 ^forward <south>
 					 ^backward <north>
 					 ^left <east>
 					 ^right <west>
-					 ^color-left white
-					 ^color-right brown)
+					 ^color-left brown
+					 ^color-right white)
 	(<west> ^name west
 					^forward <west>
 					^backward <east>
 					^left <south>
 					^right <north>
-					^color-left white
-					^color-right brown)
+					^color-left brown
+					^color-right white)
 }

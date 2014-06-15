@@ -1,3 +1,18 @@
+############################################################
+#
+# file: Common-Advanced/turn-to-direction/finish-turn-to-direction.soar
+# contains:
+#   operator finish-turn-to-direction
+#     Once the robot is on black,
+#     Then propose finish-turn-to-direction to cleanup the topstate
+#     This operator does 3 basic things
+#       * swaps the color-left and color-right values if necessary
+#       * changes the direction the robot is heading
+#       * removes flags on the topstate (turn-goal, turned, selected-direction)
+############################################################
+
+# if the robot is on black, 
+#   then propose finish-turn-to-direction
 sp {turn-to-direction*propose*finish-turn-to-direction
 	(state <s> ^name turn-to-direction
 				 ^color-sensor-value black)

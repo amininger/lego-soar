@@ -1,12 +1,31 @@
 source elaborations.soar
+# Contains:
+#   elaborations for the topstate
+#   ^color-type << path junction >>
+#      Whether the seen color is categorized as a path (black, brown, white)
+#        or junction (red, green, yellow, blue)
 
 source preferences.soar
+# Contains:
+#   preference rules for the topstate
+#   These make sure toggle-robot-mode is preferred over turn-to-direction
 
 source Init-Agent.soar
+# Contains:
+#   Additional initialization code for the topstate
+#   direction-map - contains information useful for 
+#     getting information about directions
+#     (e.g. how do you turn to go from facing north to facing east)
 
-# Souce file "follow-line.soar"
 source follow-line.soar
+# Contains:
+#   The basic rules used to follow the line
+
+source change-color-directions.soar
+# Will swap the initial color directions (color-left and color-right)
+#    If not right for the starting direction
 
 pushd turn-to-direction
 source turn-to-direction_source.soar
 popd
+# code used to turn the robot to a given cardinal direction (NSEW) at a junction

@@ -1,16 +1,29 @@
+############################################################
+#
+# file: Common-Advanced/turn-to-direction/drive-forward.soar
+# contains:
+#   operator drive-forward
+#     Drives the robot forward until it is off a junction color
+#     Proposed when relative-direction is forward OR
+#       the robot has turned and is still on the junction
+#  
+############################################################
 
+# If the relative-direction is forward and the robot is still
+#   on a junction, propose drive-forward
 sp {turn-to-direction*propose*drive-forward
 	(state <s> ^name turn-to-direction
-				 ^goal-heading forward
+				 ^relative-direction forward
 				 ^color-type junction)
 -->
 	(<s> ^operator <o> +)
 	(<o> ^name drive-forward)
 }
 
+# If the robot has already turned and is still on a junction,
+#   propose drive-forward
 sp {turn-to-direction*propose*drive-forward*after-turning
 	(state <s> ^name turn-to-direction
-				 ^goal-heading backward
 				 ^superstate.turned true
 				 ^color-type junction)
 -->
@@ -18,6 +31,8 @@ sp {turn-to-direction*propose*drive-forward*after-turning
 	(<o> ^name drive-forward)
 }
 
+# When drive-forward is selected, have both motors 
+#   turn backwards
 sp {turn-to-direction*apply*drive-forward
 	(state <s> ^name turn-to-direction
 				 ^operator.name drive-forward

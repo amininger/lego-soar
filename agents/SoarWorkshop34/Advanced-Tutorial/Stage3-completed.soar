@@ -1,0 +1,276 @@
+source ../Common-Include/Common-Include_source.soar
+
+source Common-Advanced/Common-Advanced_source.soar
+
+# Creates the empty color map to be filled in during learning
+sp {Stage3*apply*init-agent*create*stage3*info
+	(state <s> ^operator.name init-agent)
+-->
+	(<s> ^current-direction south
+			 ^color-map <colors>)
+	(<colors> ^red <red>
+						^green <green>
+						^blue <blue>)
+}
+
+####################################################
+#
+# enter-junction substate
+#   Proposed when we encounter a junction
+#   Have to decide what direction to choose
+#     and do any learning here
+#
+####################################################
+
+# Proposed when we see a junction color
+sp {Stage3*propose*enter-junction
+	(state <s> ^name line-follower
+						 ^color-type junction
+						 ^color-sensor-value <color>
+						 ^current-direction <dir>
+						 -^selected-direction)
+-->
+	(<s> ^operator <o> + >)
+	(<o> ^name enter-junction
+			 ^enter-direction <dir>
+			 ^junction-color <color>
+			 ^action stop)
+}
+
+# Note: Combining an ^action stop on the operator 
+#   and an interrupt is a very useful form of debuggin
+sp {Stage3*interrupt*on*enter-junction
+	(state <s> ^name enter-junction)
+-->
+	(interrupt)
+}
+
+# Copy information from the superstate.operator
+#   enter-direction
+#   junction-color
+sp {Stage3*enter-junction*elaborate*copy*super-operator
+	(state <s> ^name enter-junction
+						 ^superstate.operator <o>)
+	(<o> ^enter-direction <dir>
+			 ^junction-color <color>)
+-->
+	(<s> ^enter-direction <dir>
+			 ^junction-color <color>)
+}
+
+# Copy information from the superstate
+#   io
+#   direction-map
+#   color-map
+#   current-direction
+sp {Stage3*enter-junction*elaborate*copy*superstate
+	(state <s> ^name enter-junction
+						 ^superstate <ss>)
+	(<ss> ^io <io>
+				^direction-map <dir-map>
+				^color-map <color-map>
+				^current-direction <dir>)
+-->
+	(<s> ^io <io>
+			 ^direction-map <dir-map>
+			 ^color-map <color-map>
+			 ^current-direction <dir>)
+}
+
+# Copy previous-junction-color from superstate
+#   (the junction color encountered before this one)
+sp {stage3*enter-junction*elaborate*previous-junction-color
+	(state <s> ^name enter-junction
+						 ^superstate.previous-junction-color <color>)
+-->
+	(<s> ^previous-junction-color <color>)
+}
+
+#######################################################
+#
+# operator mark-direction-blocked
+#
+########################################################
+
+# When we reach a junction from a previous one, then 
+#  we know that our current direction is the right one 
+#  to take from that previous junction color, 
+# so mark all other directions as blocked for that color
+sp {Stage3*enter-junction*propose*mark-direction-blocked*new-junction
+	(state <s> ^name enter-junction
+						 ^junction-color << red blue green >>
+						 ^previous-junction-color { <color> << red blue green >> }
+						 ^current-direction <cur-dir>
+						 ^direction-map.direction.name {<dir> <> <cur-dir>}
+						 -^color-map.<color>.blocked-direction <dir>
+						 -^changed-previous-color)
+-->
+	(<s> ^operator <o> + =)
+	(<o> ^name mark-direction-blocked
+			 ^color <color>
+			 ^direction <dir>)
+}
+
+sp {Stage3*enter-junction*propose*mark-direction-blocked*entering-direction
+	(state <s> ^name enter-junction
+						 ^junction-color { <cur-color> << red green blue >> }
+						 ^previous-junction-color << red green blue >>
+						 ^current-direction <cur-dir>
+						 ^direction-map.direction <dir>
+						 -^color-map.<color>.blocked-direction <back-dir>
+						 -^changed-previous-color)
+	(<dir> ^name <cur-dir>
+				 ^backward.name <back-dir>)
+-->
+	(<s> ^operator <o> + =)
+	(<o> ^name mark-direction-blocked
+			 ^color <color>
+			 ^direction <dir>)
+}
+
+# If we reach a yellow junction (blocked)
+#   Then mark the previous junction color as blocked in the current direction
+sp {Stage3*enter-junction*propose*mark-direction-blocked*reached-blocked-junction
+	(state <s> ^name enter-junction
+						 ^junction-color yellow
+						 ^previous-junction-color { <prev-color> <> yellow }
+						 ^current-direction <cur-dir>
+						 -^color-map.<prev-color>.blocked-direction <cur-dir>
+						 -^changed-previous-color)
+-->
+	(<s> ^operator <o> + =)
+	(<o> ^name mark-direction-blocked
+			 ^color <prev-color>
+			 ^direction <cur-dir>)
+}
+
+# Mark the indicated direction as blocked for the given color
+sp {Stage3*enter-junction*apply*mark-direction-blocked
+	(state <s> ^name enter-junction
+						 ^operator <o>
+						 ^color-map.<color> <c>)
+	(<o> ^name mark-direction-blocked
+			 ^color <color>
+			 ^direction <dir>)
+-->
+	(<c> ^blocked-direction <dir>)
+}
+
+# Do any learning first before other things change the state
+sp {Stage3*enter-junction*prefer*mark-direction-blocked*over*others
+	(state <s> ^name enter-junction
+						 ^operator <o1> +
+						 ^operator <o2> +)
+	(<o1> ^name mark-direction-blocked)
+	(<o2> ^name << change-previous-junction-color select-direction >>)
+-->
+	(<s> ^operator <o1> > <o2>)
+}
+
+################################################
+#
+# operator change-previous-junction-color
+#   Update the topstate.previous-junction-color to 
+#    the current color
+################################################
+
+sp {Stage3*enter-junction*propose*change-previous-junction-color
+	(state <s> ^name enter-junction
+						 ^junction-color <color>
+						 -^previous-junction-color <color>)
+
+-->
+	(<s> ^operator <o> + =)
+	(<o> ^name change-previous-junction-color)
+}
+
+# The changed-previous-color flag stops us from trying to propose
+#   a mark-direction-blocked operator 
+sp {Stage3*enter-junction*apply*change-previous-junction-color*add*current
+	(state <s> ^name enter-junction
+						 ^operator.name change-previous-junction-color
+						 ^junction-color <color>
+						 ^superstate <ss>)
+-->
+	(<s> ^changed-previous-color true)
+	(<ss> ^previous-junction-color <color>)
+}
+
+sp {Stage3*enter-junction*apply*change-junction-color*remove*old
+	(state <s> ^name enter-junction
+						 ^operator.name change-previous-junction-color
+						 ^junction-color <color>
+						 ^superstate <ss>)
+	(<ss> ^previous-junction-color { <old-color> <> <color> })
+-->
+	(<ss> ^previous-junction-color <old-color> -)
+}
+
+# Only go to select-direction if we have finished marking the state
+sp {Stage3*enter-junction*prefer*change-previous-junction*over*select-direction
+	(state <s> ^name enter-junction
+						 ^operator <o1> +
+						 ^operator <o2> +)
+	(<o1> ^name change-previous-junction-color)
+	(<o2> ^name select-direction)
+-->
+	(<s> ^operator <o1> > <o2>)
+}
+
+#####################################################3
+#
+# operator select-direction
+#   Used to select which direction to turn at the junction
+#   Preferences are used to prefer good direction
+#     and reject bad directions
+#
+#####################################################3
+
+# propose for all directions
+sp {Stage3*enter-junction*propose*select-direction
+	(state <s> ^name enter-junction
+						 ^direction-map.direction.name <dir>)
+-->
+	(<s> ^operator <o> + =)
+	(<o> ^name select-direction
+			 ^direction <dir>)
+}
+
+# mark topstate indicating we have selected the direction
+sp {Stage3*enter-junction*apply*select-direction
+	(state <s> ^name enter-junction
+						 ^operator <o>
+						 ^superstate <ss>)
+	(<o> ^name select-direction
+			 ^direction <dir>)
+-->
+	(<ss> ^selected-direction <dir>)
+}
+
+# Don't go in a direction if we learned it is blocked
+sp {Stage3*enter-junction*reject*select-direction*blocked
+	(state <s> ^name enter-junction
+						 ^operator <o> +
+						 ^color-map.<color>.blocked-direction <dir>
+						 ^junction-color <color>)
+	(<o> ^name select-direction
+			 ^direction <dir>)
+-->
+	(<s> ^operator <o> -)
+}
+
+# If the junction is yellow (blocked), we must head backward
+sp {Stage3*enter-junction*blocked*prefer*select-direction*backward
+	(state <s> ^name enter-junction
+						 ^junction-color yellow
+						 ^current-direction <cur-dir>
+						 ^direction-map.direction <dir>
+						 ^operator <o> +)
+	(<dir> ^name <cur-dir>
+				 ^backward.name <back-dir>)
+	(<o> ^name select-direction
+			 ^direction <back-dir>)
+-->
+	(<s> ^operator <o> >)
+}
+
