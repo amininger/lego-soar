@@ -17,6 +17,7 @@ sp {navigation*line-follower*apply*init-agent*create*direction-map
 	(<s> ^direction-map <d>)
 	(<d> ^direction <north> <south> <east> <west>)
 	(<north> ^name north
+					 ^button up-button
 					 ^forward <north>
 					 ^backward <south>
 					 ^left <west> 
@@ -24,6 +25,7 @@ sp {navigation*line-follower*apply*init-agent*create*direction-map
 					 ^color-left white
 					 ^color-right brown)
 	(<east> ^name east
+					^button right-button
 					^forward <east>
 					^backward <west>
 					^left <north>
@@ -31,6 +33,7 @@ sp {navigation*line-follower*apply*init-agent*create*direction-map
 					^color-left white
 					^color-right brown)
 	(<south> ^name south
+					 ^button down-button
 					 ^forward <south>
 					 ^backward <north>
 					 ^left <east>
@@ -38,6 +41,7 @@ sp {navigation*line-follower*apply*init-agent*create*direction-map
 					 ^color-left brown
 					 ^color-right white)
 	(<west> ^name west
+					^button left-button
 					^forward <west>
 					^backward <east>
 					^left <south>

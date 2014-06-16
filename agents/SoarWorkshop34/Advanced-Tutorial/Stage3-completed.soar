@@ -6,7 +6,7 @@ source Common-Advanced/Common-Advanced_source.soar
 sp {Stage3*apply*init-agent*create*stage3*info
 	(state <s> ^operator.name init-agent)
 -->
-	(<s> ^current-direction south
+	(<s> ^current-direction north
 			 ^color-map <colors>)
 	(<colors> ^red <red>
 						^green <green>
@@ -39,11 +39,11 @@ sp {Stage3*propose*enter-junction
 
 # Note: Combining an ^action stop on the operator 
 #   and an interrupt is a very useful form of debuggin
-sp {Stage3*interrupt*on*enter-junction
-	(state <s> ^name enter-junction)
--->
-	(interrupt)
-}
+#sp {Stage3*interrupt*on*enter-junction
+#	(state <s> ^name enter-junction)
+#-->
+#	(interrupt)
+#}
 
 # Copy information from the superstate.operator
 #   enter-direction
@@ -117,15 +117,15 @@ sp {Stage3*enter-junction*propose*mark-direction-blocked*entering-direction
 						 ^previous-junction-color << red green blue >>
 						 ^current-direction <cur-dir>
 						 ^direction-map.direction <dir>
-						 -^color-map.<color>.blocked-direction <back-dir>
+						 -^color-map.<cur-color>.blocked-direction <back-dir>
 						 -^changed-previous-color)
 	(<dir> ^name <cur-dir>
 				 ^backward.name <back-dir>)
 -->
 	(<s> ^operator <o> + =)
 	(<o> ^name mark-direction-blocked
-			 ^color <color>
-			 ^direction <dir>)
+			 ^color <cur-color>
+			 ^direction <back-dir>)
 }
 
 # If we reach a yellow junction (blocked)

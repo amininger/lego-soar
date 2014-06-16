@@ -13,7 +13,7 @@ source Common-Advanced/Common-Advanced_source.soar
 sp {Stage4*apply*init-agent*create*Stage4*info
 	(state <s> ^operator.name init-agent)
 -->
-	(<s> ^current-direction south
+	(<s> ^current-direction north
 			 ^color-map <colors>)
 	(<colors> ^red <red>
 						^green <green>
@@ -119,13 +119,13 @@ sp {Stage4*enter-junction*propose*retrieve-previous-junction-color
 	(<o> ^name retrieve-previous-junction-color)
 }
 
-sp {Stage4*enter-junction*apply*retrieve-previous-junction-color*retrieve*first
+sp {Stage4*enter-junction*apply*retrieve-previous-junction-color*retrieve
 	(state <s> ^name enter-junction
 						 ^operator.name retrieve-previous-junction-color
-						 ^epmem.command <cmd>
-						 -^first-episode-id)
+						 ^epmem.command <cmd>)
 -->
-	(<cmd> ^query.junction-color <color>)
+	(<cmd> ^query <q>)
+	(<q> ^processed-junction <color>)
 }
 
 sp {Stage4*enter-junction*apply*retrieve-previous-junction-color*failure
@@ -140,43 +140,28 @@ sp {Stage4*enter-junction*apply*retrieve-previous-junction-color*failure
 	(<cmd> ^query <q> -)
 }
 
-sp {Stage4*enter-junction*apply*retrieve-previous-junction-color*copy*first
-	(state <s> ^name enter-junction
-						 ^operator.name retrieve-previous-junction-color
-						 ^epmem <epmem>
-						 -^first-episode-id)
-	(<epmem> ^result.success
-					 ^result.memory-id <id>
-					 ^command <cmd>)
-	(<cmd> ^query <q>)
--->
-	(<s> ^first-episode-id <id>)
-	(<cmd> ^query <q> -)
-}
-
-sp {Stage4*enter-junction*apply*retrieve-previous-junction*retrieve*second
-	(state <s> ^name enter-junction
-						 ^operator.name retrieve-previous-junction-color
-						 ^epmem.command <cmd>
-						 ^first-episode-id <id>)
--->
-	(<cmd> ^query.junction-color <color>
-				 ^before <id>)
-}
-
-sp {Stage4*enter-junction*apply*retrieve-previous-junction-color*copy*second
+sp {Stage4*enter-junction*apply*retrieve-previous-junction-color*success
 	(state <s> ^name enter-junction
 						 ^operator.name retrieve-previous-junction-color
 						 ^epmem <epmem>)
 	(<epmem> ^result.success
-					 ^result.retrieved.junction-color <prev-color>
+					 ^result.retrieved.processed-junction <color>
 					 ^command <cmd>)
-	(<cmd> ^query <q>
-				 ^before <id>)
+	(<cmd> ^query <q>)
 -->
-	(<s> ^previous-junction-color <prev>)
-	(<cmd> ^query <q> -
-				 ^before <id> -)
+	(<s> ^previous-junction-color <color>)
+	(<cmd> ^query <q> -)
+}
+
+# Do any learning first before other things change the state
+sp {Stage4*enter-junction*prefer*retrieve-previous-junction-color*over*others
+	(state <s> ^name enter-junction
+						 ^operator <o1> +
+						 ^operator <o2> +)
+	(<o1> ^name retrieve-previous-junction-color)
+	(<o2> ^name << mark-direction-blocked mark-processed-junction select-direction >>)
+-->
+	(<s> ^operator <o1> > <o2>)
 }
 
 #######################################################
@@ -196,7 +181,7 @@ sp {Stage4*enter-junction*propose*mark-direction-blocked*new-junction
 						 ^current-direction <cur-dir>
 						 ^direction-map.direction.name {<dir> <> <cur-dir>}
 						 -^color-map.<color>.blocked-direction <dir>
-						 -^changed-previous-color)
+						 -^superstate.processed-junction)
 -->
 	(<s> ^operator <o> + =)
 	(<o> ^name mark-direction-blocked
@@ -211,7 +196,7 @@ sp {Stage4*enter-junction*propose*mark-direction-blocked*entering-direction
 						 ^current-direction <cur-dir>
 						 ^direction-map.direction <dir>
 						 -^color-map.<color>.blocked-direction <back-dir>
-						 -^changed-previous-color)
+						 -^superstate.processed-junction)
 	(<dir> ^name <cur-dir>
 				 ^backward.name <back-dir>)
 -->
@@ -226,10 +211,10 @@ sp {Stage4*enter-junction*propose*mark-direction-blocked*entering-direction
 sp {Stage4*enter-junction*propose*mark-direction-blocked*reached-blocked-junction
 	(state <s> ^name enter-junction
 						 ^junction-color yellow
-						 ^previous-junction-color { <prev-color> <> yellow }
+						 ^previous-junction-color { <prev-color> << red green blue >> }
 						 ^current-direction <cur-dir>
 						 -^color-map.<prev-color>.blocked-direction <cur-dir>
-						 -^changed-previous-color)
+						 -^superstate.processed-junction)
 -->
 	(<s> ^operator <o> + =)
 	(<o> ^name mark-direction-blocked
@@ -255,48 +240,37 @@ sp {Stage4*enter-junction*prefer*mark-direction-blocked*over*others
 						 ^operator <o1> +
 						 ^operator <o2> +)
 	(<o1> ^name mark-direction-blocked)
-	(<o2> ^name << change-previous-junction-color select-direction >>)
+	(<o2> ^name << mark-processed-junction select-direction >>)
 -->
 	(<s> ^operator <o1> > <o2>)
 }
 
 ################################################
 #
-# operator change-previous-junction-color
+# operator mark-processed-junction
 #   Update the topstate.previous-junction-color to 
 #    the current color
 ################################################
 
-sp {Stage4*enter-junction*propose*change-previous-junction-color
+sp {Stage4*enter-junction*propose*mark-processed-junction
 	(state <s> ^name enter-junction
 						 ^junction-color <color>
-						 -^previous-junction-color <color>)
+						 -^superstate.processed-junction <color>)
 
 -->
 	(<s> ^operator <o> + =)
-	(<o> ^name change-previous-junction-color)
+	(<o> ^name mark-processed-junction)
 }
 
-# The changed-previous-color flag stops us from trying to propose
+# The processed-junction flag stops us from trying to propose
 #   a mark-direction-blocked operator 
-sp {Stage4*enter-junction*apply*change-previous-junction-color*add*current
+sp {Stage4*enter-junction*apply*mark-processed-junction*add*current
 	(state <s> ^name enter-junction
-						 ^operator.name change-previous-junction-color
+						 ^operator.name mark-processed-junction
 						 ^junction-color <color>
 						 ^superstate <ss>)
 -->
-	(<s> ^changed-previous-color true)
-	(<ss> ^previous-junction-color <color>)
-}
-
-sp {Stage4*enter-junction*apply*change-junction-color*remove*old
-	(state <s> ^name enter-junction
-						 ^operator.name change-previous-junction-color
-						 ^junction-color <color>
-						 ^superstate <ss>)
-	(<ss> ^previous-junction-color { <old-color> <> <color> })
--->
-	(<ss> ^previous-junction-color <old-color> -)
+	(<ss> ^processed-junction <color>)
 }
 
 # Only go to select-direction if we have finished marking the state
@@ -304,10 +278,20 @@ sp {Stage4*enter-junction*prefer*change-previous-junction*over*select-direction
 	(state <s> ^name enter-junction
 						 ^operator <o1> +
 						 ^operator <o2> +)
-	(<o1> ^name change-previous-junction-color)
+	(<o1> ^name mark-processed-junction)
 	(<o2> ^name select-direction)
 -->
 	(<s> ^operator <o1> > <o2>)
+}
+
+# This makes sure the processed-junction flag is cleaned up
+sp {Stage4*turn-to-direction*apply*finish-turn-to-direction*remove*processed-junction
+	(state <s> ^name turn-to-direction
+						 ^operator.name finish-turn-to-direction
+						 ^superstate <ss>)
+	(<ss> ^processed-junction <color>)
+-->
+	(<ss> ^processed-junction <color> -)
 }
 
 #####################################################3

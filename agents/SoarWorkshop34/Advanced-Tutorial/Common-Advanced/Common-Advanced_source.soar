@@ -25,7 +25,12 @@ source change-color-directions.soar
 # Will swap the initial color directions (color-left and color-right)
 #    If not right for the starting direction
 
+source Button-Press.soar
+# Will handle a button press of the 4 direction buttons (up, down, left, right)
+#   and change the current-direction of the robot
+
 pushd turn-to-direction
 source turn-to-direction_source.soar
 popd
 # code used to turn the robot to a given cardinal direction (NSEW) at a junction
+

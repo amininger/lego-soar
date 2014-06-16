@@ -1,0 +1,76 @@
+###################################################
+#
+# File: Common-Include/Button-Press
+# Contains:
+#   operator handle-button-press
+#  
+###################################################
+
+###################################################
+#	handle-button-press operator
+#
+# When a button is pressed on the robot, this operator
+# is proposed to handle it
+#
+# enter-button = change modes (follow and wait)
+###################################################
+
+sp {Common-Include*Button-Press*propose*handle-button-press
+	(state <s>	^name line-follower
+						 ^io.input-link.brick.<button-name> <button>
+				    ^mode <cur-mode> )
+	(<button>	^type button
+            ^previous-state released
+            ^current-state pressed)
+-->
+	(<s>	^operator <o> + = >)
+	(<o>	^name handle-button-press
+			 ^button <button-name> 
+			^mode <cur-mode>)
+}
+
+#####################################################
+# cur-mode = follow & button = enter-button or escape-button
+# Stop the agent and change the mode to wait
+
+sp {Common-Include*Button-Press*elaborate*handle-button-press*stop
+	(state <s> ^name line-follower
+						 ^operator <o> +)
+	(<o> ^name handle-button-press
+			 ^mode follow
+			 ^button << escape-button enter-button >>)
+-->
+	(<o> ^action stop)
+}
+
+# change the mode
+sp {Common-Include*Button-Press*apply*handle-button-press*change*mode*wait
+	(state <s>	^name line-follower
+						 ^operator <o>
+						 ^mode follow)
+	(<o> ^name handle-button-press
+			 ^mode follow
+			 ^button << escape-button enter-button >>)
+-->
+	(<s> ^mode follow -
+			 ^mode wait)
+}
+
+
+#####################################################
+# cur-mode = wait & button = enter-button or escape-button
+# change the mode to wait
+
+# If we were just waiting, then the button press is to start following
+sp {Common-Include*Button-Press*apply*handle-button-press*change*mode*follow
+	(state <s>	^name line-follower
+				^operator <o>
+				^mode wait)
+	(<o>	^name handle-button-press
+			^mode wait
+			^button << escape-button enter-button >>)
+-->
+	(<s>	^mode wait -
+			^mode follow)
+}
+

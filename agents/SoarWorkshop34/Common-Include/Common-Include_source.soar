@@ -10,9 +10,8 @@ source Output-Link.soar
 source Sensors.soar
 # Code for creating and managing sensors
 
-source Toggle-Mode.soar
-# Code to toggle the mode from follow to wait 
-# (after button press)
+source Button-Press.soar
+# Code to handle a button press on the robot
 
 source Stop-Agent.soar
 # Code to stop the agent when ^stop-agent YES 

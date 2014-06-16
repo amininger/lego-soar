@@ -1,0 +1,31 @@
+sp {Common-Advanced*Button-Press*apply*handle-button-press*change*current-direction
+	(state <s> ^name line-follower
+						 ^operator <o>
+						 ^direction-map.direction <dir>
+						 ^color-right <old-color-right>
+						 ^color-left <old-color-left>
+						 ^current-direction <old-dir>)
+	(<o> ^name handle-button-press
+			 ^button { <button> << left-button right-button up-button down-button >> })
+	(<dir> ^name <new-dir>
+				 ^button <button>
+				 ^color-right <new-color-right>
+				 ^color-left <new-color-left>)
+-->
+	(<s> ^color-right <old-color-right> -
+			 ^color-right <new-color-right>
+			 ^color-left <old-color-left> -
+			 ^color-left <new-color-left>
+			 ^current-direction <old-dir> -
+			 ^current-direction <new-dir>)
+}
+
+sp {Common-Advanced*Button-Press*apply*handle-button-press*remove*previous-junction-color
+	(state <s> ^name line-follower
+						 ^operator <o>
+						 ^previous-junction-color <color>)
+	(<o> ^name handle-button-press
+			 ^button { <button> << left-button right-button up-button down-button >> })
+-->
+	(<s> ^previous-junction-color <color> -)
+}

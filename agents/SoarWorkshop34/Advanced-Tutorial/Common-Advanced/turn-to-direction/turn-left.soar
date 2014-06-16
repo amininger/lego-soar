@@ -33,7 +33,7 @@ sp {turn-to-direction*apply*turn-left*send*commands
 	(<out> ^motor <left> <right>)
 	(<left> ^port <left-port>
 			^set-direction forward
-			^set-power 25)
+			^set-power 20)
 	(<right> ^port <right-port>
 			^set-direction backward
 			 ^set-power 40)
