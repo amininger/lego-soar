@@ -2,17 +2,6 @@ source Stage1-completed.soar
 
 source Common-Advanced-Stage2.soar
 
-sp {Stage2*apply*Init-Agent*init-smem
-   (state <s>	^operator.name init-agent
-				^smem.command <command>)
--->
-	(<command>	^store <s1> <map>)
-   (<s1>	^color-map <map>)
-   (<map> ^red east
-          ^green south
-          ^blue north)
-}
-
 sp {Stage2*propose*query-for-direction
    (state <s> ^name line-follower
               ^color-type junction
@@ -24,18 +13,6 @@ sp {Stage2*propose*query-for-direction
    (<o> ^name query-for-direction
         ^direction-color <color>)
 }
-
-sp {Stage2*apply*any-op*remove*store*command
-	(state <s> ^name line-follower
-						 ^operator <o>
-						 ^smem <smem>)
-	(<smem> ^command <cmd>
-					^result.success <lti>)
-	(<cmd> ^store <lti>)
--->
-	(<cmd> ^store <lti> -)
-}
-
 
 sp {Stage2*apply*query-for-direction
    (state <s> ^name line-follower

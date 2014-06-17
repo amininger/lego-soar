@@ -10,17 +10,6 @@ source Common-Advanced-Stage1.soar
 #	yet selected a direction to go in
 ####################################################
 
-sp {Stage1*propose*select-direction
-   (state <s> ^name line-follower
-              ^color-type junction
-             -^selected-direction
-              ^direction <dir>)
--->
-   (<s> ^operator <o> + =)
-   (<o> ^name select-direction
-        ^direction <dir>)
-}
-
 ####################################################
 #	apply*select-direction
 #
@@ -28,29 +17,9 @@ sp {Stage1*propose*select-direction
 #	state with the direction to go in.
 ####################################################
 
-sp {Stage1*apply*select-direction
-   (state <s> ^name line-follower
-              ^operator <o>)
-   (<o> ^name select-direction
-        ^direction <dir>)
--->
-   (<s> ^selected-direction <dir>)
-}
-
 ####################################################
 #	prefer*right*color preference
 #
 #	Creates a best preference on the proposed
 #	operator which has the direction for this color.
 ####################################################
-
-sp {Stage1*prefer*right*color
-   (state <s> ^name line-follower
-              ^operator <o> +
-              ^color-sensor-value <color>
-              ^color-map.<color> <dir>)
-   (<o> ^name select-direction
-        ^direction <dir>)
--->
-   (<s> ^operator <o> + >)
-}

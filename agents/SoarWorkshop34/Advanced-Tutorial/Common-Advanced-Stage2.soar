@@ -12,9 +12,9 @@ sp {Common-Advanced*apply*Init-Agent*create*color-map
 
 smem --set learning on
 
-#smem --add {
-#(<s>	^color-map <map>)
-#(<map>	^red east
-#        ^green south
-#        ^blue north)
-#}
+smem --add {
+(<s>	^color-map <map>)
+(<map>	^red east
+        ^green south
+        ^blue north)
+}

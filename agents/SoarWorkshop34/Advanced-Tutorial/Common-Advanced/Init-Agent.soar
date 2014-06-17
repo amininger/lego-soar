@@ -14,7 +14,11 @@
 sp {navigation*line-follower*apply*init-agent*create*direction-map
 	(state <s> ^operator.name init-agent)
 -->
-	(<s> ^direction-map <d>)
+	(<s>	^direction-map <d>
+			^direction north
+			^direction east
+			^direction west
+			^direction south)
 	(<d> ^direction <north> <south> <east> <west>)
 	(<north> ^name north
 					 ^button up-button

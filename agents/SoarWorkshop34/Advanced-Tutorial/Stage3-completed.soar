@@ -38,7 +38,7 @@ sp {Stage3*propose*enter-junction
 }
 
 # Note: Combining an ^action stop on the operator 
-#   and an interrupt is a very useful form of debuggin
+#   and an interrupt is a very useful form of debugging
 #sp {Stage3*interrupt*on*enter-junction
 #	(state <s> ^name enter-junction)
 #-->
